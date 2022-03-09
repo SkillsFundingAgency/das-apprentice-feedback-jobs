@@ -1,54 +1,83 @@
 ﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.ApprenticeFeedback.Jobs;
-using SFA.DAS.ApprenticeFeedback.Jobs.Configuration;
-using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Interfaces;
-using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api;
-using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
 using System;
-using System.IO;
 
 [assembly: FunctionsStartup(typeof(Startup))]
+[assembly: NServiceBusTriggerFunction(Startup.EndpointName, SendsAtomicWithReceive = true, TriggerFunctionName = "ApprenticeFeedbackJobs")]
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs
 {
-    internal class Startup : FunctionsStartup
+    public class Startup : FunctionsStartup
     {
+        internal const string EndpointName = "SFA.DAS.ApprenticeFeedback";
+
+        public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
+        {
+            builder.ConfigureConfiguration();
+        }
+
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddHttpClient();
+            builder.ConfigureLogging();
+            
+            var logger = LoggerFactory.Create(b => b.ConfigureLogging()).CreateLogger<Startup>();
 
-            var serviceProvider = builder.Services.BuildServiceProvider();
-            var configuration = serviceProvider.GetService<IConfiguration>();
+            CreateTopicsAndQueues.CreateQueuesAndTopics(builder.GetContext().Configuration,EndpointName,logger: logger)
+                .GetAwaiter().GetResult();
 
-            var config = new ConfigurationBuilder()
-                .AddConfiguration(configuration)
-                .SetBasePath(Directory.GetCurrentDirectory());
-
-
-            if (!configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase))
+            builder.UseNServiceBus((IConfiguration appConfiguration) =>
             {
-                config.AddAzureTableStorage(options =>
-                {
-                    options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-                    options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-                    options.EnvironmentName = configuration["EnvironmentName"];
-                    options.PreFixConfigurationKeys = false;
-                }
-                );
-            }
+                var configuration = new ServiceBusTriggeredEndpointConfiguration(EndpointName);
 
-            var builtConfiguration = config.Build();
+                configuration.AdvancedConfiguration.SendFailedMessagesTo($"{EndpointName}-error");
+                configuration.LogDiagnostics();
 
-            builder.Services.AddOptions();
-            builder.Services.Configure<ApprenticeFeedbackApiConfiguration>(builtConfiguration.GetSection(nameof(ApprenticeFeedbackApiConfiguration)));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApprenticeFeedbackApiConfiguration>>().Value);
+                configuration.AdvancedConfiguration.Conventions()
+                    .DefiningMessagesAs(IsMessage)
+                    .DefiningEventsAs(IsEvent)
+                    .DefiningCommandsAs(IsCommand);
 
-            builder.Services.AddHttpClient<IApiClient, ApiClient>();
+                configuration.Transport.SubscriptionRuleNamingConvention(AzureQueueNameShortener.Shorten);
+                //configuration.Transport.Routing().RouteToEndpoint(typeof(SendEmailCommand), QueueNames.NotificationsQueue);
 
-            builder.Services.BuildServiceProvider();
+                configuration.AdvancedConfiguration.Pipeline.Register(new LogIncomingBehaviour(), nameof(LogIncomingBehaviour));
+                configuration.AdvancedConfiguration.Pipeline.Register(new LogOutgoingBehaviour(), nameof(LogOutgoingBehaviour));
+
+                var persistence = configuration.AdvancedConfiguration.UsePersistence<AzureTablePersistence>();
+                persistence.ConnectionString(appConfiguration.GetConnectionStringOrSetting("AzureWebJobsStorage"));
+                configuration.AdvancedConfiguration.EnableInstallers();
+
+                return configuration;
+            });
+
+            //
+            //var serviceProvider = builder.Services.BuildServiceProvider();
+            //var configuration = serviceProvider.GetService<IConfiguration>();
+            builder.Services.AddApplicationOptions();
+            builder.Services.ConfigureFromOptions(f => f.ApprenticeFeedbackOuterApi);
+            //builder.Services.AddSingleton<IApimClientConfiguration>(x => x.GetRequiredService<ApprenticeFeedbackApiConfiguration>());
+            builder.Services.AddTransient<Http.MessageHandlers.DefaultHeadersHandler>();
+            builder.Services.AddTransient<Http.MessageHandlers.LoggingMessageHandler>();
+            builder.Services.AddTransient<Http.MessageHandlers.ApimHeadersHandler>();
+            
+            //builder.Services.AddHttpClient<IApiClient, ApiClient>();
+            //builder.Services.BuildServiceProvider();
         }
+
+        private static bool IsMessage(Type t) => t is IMessage || IsSfaMessage(t, "Messages");
+
+        private static bool IsEvent(Type t) => t is IEvent || IsSfaMessage(t, "Messages.Events");
+
+        private static bool IsCommand(Type t) => t is ICommand || IsSfaMessage(t, "Messages.Commands");
+
+        private static bool IsSfaMessage(Type t, string namespaceSuffix)
+            => t.Namespace != null &&
+                t.Namespace.StartsWith("SFA.DAS") &&
+                t.Namespace.EndsWith(namespaceSuffix);
     }
 }
