@@ -16,6 +16,7 @@
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
     <PackageReference Include="NServiceBus.AzureFunctions.InProcess.ServiceBus" Version="3.0.0" />
     <PackageReference Include="NServiceBus.Persistence.AzureTable" Version="3.1.0" />
+    <PackageReference Include="SFA.DAS.ApprenticeCommitments.Messages" Version="0.1.83-prerelease-6" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
     <PackageReference Include="SFA.DAS.Http" Version="3.2.65" />
     <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />

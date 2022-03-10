@@ -48,12 +48,16 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure
             if (await adminClient.SubscriptionExistsAsync(topicName, endpointQueueName)) return;
 
             logger?.LogInformation($"Creating subscription to: `{endpointQueueName}`", endpointQueueName);
-            var subscriptionOptions = new CreateSubscriptionOptions(topicName, endpointName)
+            var createSubscriptionOptions = new CreateSubscriptionOptions(topicName, endpointName)
             {
                 ForwardTo = endpointQueueName,
                 UserMetadata = $"Subscribed to {endpointQueueName}"
             };
-            await adminClient.CreateSubscriptionAsync(subscriptionOptions);
+            var createRuleOptions = new CreateRuleOptions()
+            {
+                Filter = new FalseRuleFilter()
+            };
+            await adminClient.CreateSubscriptionAsync(createSubscriptionOptions, createRuleOptions);
         }
     }
 }
