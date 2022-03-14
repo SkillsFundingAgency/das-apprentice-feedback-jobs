@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.ApprenticeFeedback.Jobs;
+using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
 using System;
 
@@ -24,15 +25,22 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.ConfigureLogging();
-            
+
             var logger = LoggerFactory.Create(b => b.ConfigureLogging()).CreateLogger<Startup>();
 
-            CreateTopicsAndQueues.CreateQueuesAndTopics(builder.GetContext().Configuration,EndpointName,logger: logger)
+            CreateTopicsAndQueues.CreateQueuesAndTopics(builder.GetContext().Configuration, EndpointName, logger: logger)
                 .GetAwaiter().GetResult();
 
             builder.UseNServiceBus((IConfiguration appConfiguration) =>
             {
                 var configuration = new ServiceBusTriggeredEndpointConfiguration(EndpointName);
+                var nServiceBusConfig = appConfiguration.GetSection("NServiceBusConfiguration").Get<NServiceBusConfiguration>();
+
+                configuration.Transport.ConnectionString(nServiceBusConfig.FullyQualifiedNamespace);
+                if (!string.IsNullOrWhiteSpace(nServiceBusConfig.License))
+                {
+                    configuration.AdvancedConfiguration.License(nServiceBusConfig.License);
+                }
 
                 configuration.AdvancedConfiguration.SendFailedMessagesTo($"{EndpointName}-error");
                 configuration.LogDiagnostics();
@@ -55,16 +63,13 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
                 return configuration;
             });
 
-            //
-            //var serviceProvider = builder.Services.BuildServiceProvider();
-            //var configuration = serviceProvider.GetService<IConfiguration>();
             builder.Services.AddApplicationOptions();
             builder.Services.ConfigureFromOptions(f => f.ApprenticeFeedbackOuterApi);
             //builder.Services.AddSingleton<IApimClientConfiguration>(x => x.GetRequiredService<ApprenticeFeedbackApiConfiguration>());
             builder.Services.AddTransient<Http.MessageHandlers.DefaultHeadersHandler>();
             builder.Services.AddTransient<Http.MessageHandlers.LoggingMessageHandler>();
             builder.Services.AddTransient<Http.MessageHandlers.ApimHeadersHandler>();
-            
+
             //builder.Services.AddHttpClient<IApiClient, ApiClient>();
             //builder.Services.BuildServiceProvider();
         }

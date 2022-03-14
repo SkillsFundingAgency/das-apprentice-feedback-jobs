@@ -1,6 +1,6 @@
 ﻿using SFA.DAS.Http.Configuration;
 
-namespace SFA.DAS.ApprenticeFeedback.Jobs.Configuration
+namespace SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration
 {
     public class ApprenticeFeedbackApiConfiguration : IApimClientConfiguration
     {

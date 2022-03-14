@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using SFA.DAS.ApprenticeFeedback.Jobs.Configuration;
+using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Interfaces;
 using System;
 using System.Net.Http;

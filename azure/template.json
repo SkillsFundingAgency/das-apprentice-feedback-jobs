@@ -17,6 +17,9 @@
         "configurationStorageConnectionString": {
             "type": "securestring"
         },
+        "sharedServiceBusEndpoint": {
+            "type": "securestring"
+        },
         "loggingRedisConnectionString": {
             "type": "securestring"
         },
@@ -225,6 +228,10 @@
                                 {
                                     "name": "ConfigurationStorageConnectionString",
                                     "value": "[parameters('configurationStorageConnectionString')]"
+                                },
+                                {
+                                    "name": "AzureWebJobsServiceBus",
+                                    "value": "[parameters('sharedServiceBusEndpoint')]"
                                 },
                                 {
                                     "name": "ConfigNames",

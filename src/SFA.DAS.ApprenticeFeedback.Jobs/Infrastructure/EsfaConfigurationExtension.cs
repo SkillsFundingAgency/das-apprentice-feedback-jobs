@@ -2,9 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using SFA.DAS.ApprenticeFeedback.Jobs.Configuration;
+using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System;
+using System.IO;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure
 {
@@ -12,7 +13,10 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure
     {
         internal static void ConfigureConfiguration(this IFunctionsConfigurationBuilder builder)
         {
-            builder.ConfigurationBuilder.AddJsonFile("local.settings.json", optional: true);
+            builder.ConfigurationBuilder
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("local.settings.json", optional: true);
+
             var preConfig = builder.ConfigurationBuilder.Build();
 
             if (!preConfig["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase))
