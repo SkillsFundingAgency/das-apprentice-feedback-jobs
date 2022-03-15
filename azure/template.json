@@ -18,7 +18,7 @@
             "type": "securestring"
         },
         "sharedServiceBusEndpointMIAuthentication": {
-            "type": "securestring"
+            "type": "string"
         },
         "loggingRedisConnectionString": {
             "type": "securestring"
