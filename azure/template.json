@@ -17,7 +17,7 @@
         "configurationStorageConnectionString": {
             "type": "securestring"
         },
-        "sharedServiceBusEndpointMIAuthentication": {
+        "SharedServiceBusFQDN": {
             "type": "string"
         },
         "loggingRedisConnectionString": {
@@ -230,8 +230,8 @@
                                     "value": "[parameters('configurationStorageConnectionString')]"
                                 },
                                 {
-                                    "name": "AzureWebJobsServiceBus",
-                                    "value": "[parameters('sharedServiceBusEndpointMIAuthentication')]"
+                                    "name": "AzureWebJobsServiceBus__fullyQualifiedNamespace",
+                                    "value": "[parameters('SharedServiceBusFQDN')]"
                                 },
                                 {
                                     "name": "ConfigNames",

@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Http.Configuration;
+﻿#nullable disable
+using SFA.DAS.Http.Configuration;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration
 {

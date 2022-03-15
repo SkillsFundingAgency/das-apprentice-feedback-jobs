@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Azure.Identity;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -34,9 +35,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
             builder.UseNServiceBus((IConfiguration appConfiguration) =>
             {
                 var configuration = new ServiceBusTriggeredEndpointConfiguration(EndpointName);
+                var connectionString = appConfiguration.GetConnectionStringOrSetting("AzureWebJobsServiceBus:fullyQualifiedNamespace");
                 var nServiceBusConfig = appConfiguration.GetSection("NServiceBusConfiguration").Get<NServiceBusConfiguration>();
 
-                configuration.Transport.ConnectionString(nServiceBusConfig.FullyQualifiedNamespace);
+                configuration.Transport.ConnectionString(connectionString);
+                configuration.Transport.CustomTokenCredential(new DefaultAzureCredential());
+
                 if (!string.IsNullOrWhiteSpace(nServiceBusConfig.License))
                 {
                     configuration.AdvancedConfiguration.License(nServiceBusConfig.License);

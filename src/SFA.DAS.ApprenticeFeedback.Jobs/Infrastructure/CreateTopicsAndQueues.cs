@@ -1,4 +1,5 @@
-﻿using Azure.Messaging.ServiceBus.Administration;
+﻿using Azure.Identity;
+using Azure.Messaging.ServiceBus.Administration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
@@ -10,12 +11,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure
         public static async Task CreateQueuesAndTopics(
             IConfiguration configuration,
             string endpointQueueName,
-            string connectionStringName = "AzureWebJobsServiceBus",
+            string connectionStringName = "AzureWebJobsServiceBus:fullyQualifiedNamespace",
             string topicName = "bundle-1",
             ILogger? logger = null)
         {
             var connectionString = configuration.GetValue<string>(connectionStringName);
-            var adminClient = new ServiceBusAdministrationClient(connectionString);
+            var adminClient = new ServiceBusAdministrationClient(connectionString, new DefaultAzureCredential());
 
             logger?.LogInformation("Queue Name: {queueName}", endpointQueueName);
             var errorQueue = $"{endpointQueueName}-error";
