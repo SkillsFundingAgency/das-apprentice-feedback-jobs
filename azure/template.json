@@ -231,7 +231,7 @@
                                 },
                                 {
                                     "name": "AzureWebJobsServiceBus",
-                                    "value": "[parameters('SharedServiceBusEndpointMIAuthentication')]"
+                                    "value": "[parameters('sharedServiceBusEndpointMIAuthentication')]"
                                 },
                                 {
                                     "name": "ConfigNames",
