@@ -2,6 +2,8 @@
 using Azure.Messaging.ServiceBus.Administration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure
@@ -11,12 +13,20 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure
         public static async Task CreateQueuesAndTopics(
             IConfiguration configuration,
             string endpointQueueName,
-            string connectionStringName = "AzureWebJobsServiceBus:fullyQualifiedNamespace",
             string topicName = "bundle-1",
             ILogger? logger = null)
         {
-            var connectionString = configuration.GetValue<string>(connectionStringName);
-            var adminClient = new ServiceBusAdministrationClient(connectionString, new DefaultAzureCredential());
+            var connectionStringConfiguration = ServiceBusConnectionConfiguration.GetServiceBusConnectionString(configuration);
+            ServiceBusAdministrationClient adminClient;
+
+            if (connectionStringConfiguration.ConnectionType == ServiceBusConnectionConfiguration.ConnectionAuthenticationType.ManagedIdentity)
+            {
+                adminClient = new ServiceBusAdministrationClient(connectionStringConfiguration.ConnectionString, new DefaultAzureCredential());
+            }
+            else
+            {
+                adminClient = new ServiceBusAdministrationClient(connectionStringConfiguration.ConnectionString);
+            }
 
             logger?.LogInformation("Queue Name: {queueName}", endpointQueueName);
             var errorQueue = $"{endpointQueueName}-error";

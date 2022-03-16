@@ -35,12 +35,19 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
             builder.UseNServiceBus((IConfiguration appConfiguration) =>
             {
                 var configuration = new ServiceBusTriggeredEndpointConfiguration(EndpointName);
-                var connectionString = appConfiguration.GetConnectionStringOrSetting("AzureWebJobsServiceBus:fullyQualifiedNamespace");
+                var connectionStringConfiguration = ServiceBusConnectionConfiguration.GetServiceBusConnectionString(appConfiguration);
+                
+                if (connectionStringConfiguration.ConnectionType == ServiceBusConnectionConfiguration.ConnectionAuthenticationType.ManagedIdentity)
+                {
+                    configuration.Transport.ConnectionString(connectionStringConfiguration.ConnectionString);
+                    configuration.Transport.CustomTokenCredential(new DefaultAzureCredential());
+                }
+                else
+                {
+                    //Shared Access Key, Will pick up the AzureServiceJobsServiceBus Setting by Default.
+                }
+
                 var nServiceBusConfig = appConfiguration.GetSection("NServiceBusConfiguration").Get<NServiceBusConfiguration>();
-
-                configuration.Transport.ConnectionString(connectionString);
-                configuration.Transport.CustomTokenCredential(new DefaultAzureCredential());
-
                 if (!string.IsNullOrWhiteSpace(nServiceBusConfig.License))
                 {
                     configuration.AdvancedConfiguration.License(nServiceBusConfig.License);
