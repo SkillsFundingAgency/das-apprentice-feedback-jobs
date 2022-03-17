@@ -1,7 +1,9 @@
-﻿namespace SFA.DAS.ApprenticeFeedback.Jobs.Configuration
+﻿#nullable disable
+namespace SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration
 {
     public class ApplicationConfiguration
     {
         public ApprenticeFeedbackApiConfiguration ApprenticeFeedbackOuterApi { get; set; }
+        public NServiceBusConfiguration NServiceBusConfiguration { get; set; }
     }
 }

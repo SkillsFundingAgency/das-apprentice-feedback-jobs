@@ -17,6 +17,9 @@
         "configurationStorageConnectionString": {
             "type": "securestring"
         },
+        "SharedServiceBusFqdn": {
+            "type": "string"
+        },
         "loggingRedisConnectionString": {
             "type": "securestring"
         },
@@ -63,6 +66,9 @@
             "type": "string"
         },
         "sharedApimName": {
+            "type": "string"
+        },
+        "sharedServiceBusName": {
             "type": "string"
         }
     },
@@ -227,6 +233,10 @@
                                     "value": "[parameters('configurationStorageConnectionString')]"
                                 },
                                 {
+                                    "name": "AzureWebJobsServiceBus__fullyQualifiedNamespace",
+                                    "value": "[parameters('SharedServiceBusFqdn')]"
+                                },
+                                {
                                     "name": "ConfigNames",
                                     "value": "[variables('configNames')]"
                                 },
@@ -274,6 +284,30 @@
                 "[variables('resourceGroupName')]",
                 "[concat(variables('appServicePlanName'), '-', parameters('utcValue'))]"
             ]
+        },
+        {
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('functionAppName'), '-sb-role', parameters('utcValue'))]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'role-assignments/role-assignment-service-bus.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "principalId": {
+                        "value": "[reference(concat(variables('functionAppName'), '-', parameters('utcValue'))).outputs.managedServiceIdentityId.value]"
+                    },
+                    "assignmentType": {
+                        "value": "ServiceBusOwner"
+                    },
+                    "resourceName": {
+                        "value": "[parameters('sharedServiceBusName')]"
+                    }
+                }
+            }
         }
     ],
     "outputs": {
