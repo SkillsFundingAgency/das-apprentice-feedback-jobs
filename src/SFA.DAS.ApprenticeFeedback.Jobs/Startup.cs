@@ -4,9 +4,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using RestEase.HttpClientFactory;
+using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
+using SFA.DAS.Http.Configuration;
 using System;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -77,13 +80,20 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
 
             builder.Services.AddApplicationOptions();
             builder.Services.ConfigureFromOptions(f => f.ApprenticeFeedbackOuterApi);
-            //builder.Services.AddSingleton<IApimClientConfiguration>(x => x.GetRequiredService<ApprenticeFeedbackApiConfiguration>());
+            builder.Services.AddSingleton<IApimClientConfiguration>(x => x.GetRequiredService<ApprenticeFeedbackApiConfiguration>());
             builder.Services.AddTransient<Http.MessageHandlers.DefaultHeadersHandler>();
             builder.Services.AddTransient<Http.MessageHandlers.LoggingMessageHandler>();
             builder.Services.AddTransient<Http.MessageHandlers.ApimHeadersHandler>();
 
-            //builder.Services.AddHttpClient<IApiClient, ApiClient>();
-            //builder.Services.BuildServiceProvider();
+            var url = builder.Services
+                .BuildServiceProvider()
+                .GetRequiredService<ApprenticeFeedbackApiConfiguration>()
+                .ApiBaseUrl;
+
+            builder.Services.AddRestEaseClient<IApprenticeFeedbackApi>(url)
+                .AddHttpMessageHandler<Http.MessageHandlers.DefaultHeadersHandler>()
+                .AddHttpMessageHandler<Http.MessageHandlers.ApimHeadersHandler>()
+                .AddHttpMessageHandler<Http.MessageHandlers.LoggingMessageHandler>();
         }
 
         private static bool IsMessage(Type t) => t is IMessage || IsSfaMessage(t, "Messages");
