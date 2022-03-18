@@ -6,7 +6,7 @@ namespace SFA.DAS.ApprenticeCommitments.Jobs.Api
 {
     public interface IApprenticeFeedbackApi
     {
-        [Post("feedbacktarget")]
+        [Post("apprenticefeedbacktarget")]
         Task CreateFeedbackTarget([Body] ApprenticeConfirmedDetails apprenticeCommitment);
     }
 }
