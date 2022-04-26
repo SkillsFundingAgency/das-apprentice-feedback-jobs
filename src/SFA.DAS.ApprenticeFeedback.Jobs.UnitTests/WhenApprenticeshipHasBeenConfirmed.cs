@@ -18,7 +18,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests
         [Test, AutoMoqData]
         public async Task And_it_is_a_new_apprenticeship_Then_create_the_apprentice_record(
             [Frozen] Mock<IApprenticeFeedbackApi> api,
-            ApprenticeshipConfirmationCommencedEventHandler sut)
+            ApprenticeshipConfirmationConfirmedEventHandler sut)
         {
             var evt = _fixture.Build<ApprenticeshipConfirmationConfirmedEvent>()
                .Create();

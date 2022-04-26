@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Handlers.ApprenticeCommitmentsHandlers
 {
-    public class ApprenticeshipConfirmationCommencedEventHandler : IHandleMessages<ApprenticeshipConfirmationConfirmedEvent>
+    public class ApprenticeshipConfirmationConfirmedEventHandler : IHandleMessages<ApprenticeshipConfirmationConfirmedEvent>
     {
         private readonly IApprenticeFeedbackApi _api;
-        private readonly ILogger<ApprenticeshipConfirmationCommencedEventHandler> _logger;
+        private readonly ILogger<ApprenticeshipConfirmationConfirmedEventHandler> _logger;
 
-        public ApprenticeshipConfirmationCommencedEventHandler(
+        public ApprenticeshipConfirmationConfirmedEventHandler(
             IApprenticeFeedbackApi api,
-            ILogger<ApprenticeshipConfirmationCommencedEventHandler> logger)
+            ILogger<ApprenticeshipConfirmationConfirmedEventHandler> logger)
         {
             _api = api;
             _logger = logger;
