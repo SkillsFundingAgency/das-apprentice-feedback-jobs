@@ -39,7 +39,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration
 
             if (connectionString == null)
             {
-                throw new ArgumentNullException("ConnectionString", "ConnectionString must be set against AzureWebJobServiceBus for Local or AzureWebJobServiceBus__fullyQualifiedNamespace for environments");
+                throw new InvalidOperationException("ConnectionString must be set against AzureWebJobServiceBus for Local or AzureWebJobServiceBus__fullyQualifiedNamespace for environments");
             }
 
             return new ServiceBusConnectionConfiguration(connectionString, connectionType);
