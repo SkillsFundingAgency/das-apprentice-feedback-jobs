@@ -11,7 +11,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration
         private const string serviceBusConnectionConfigSetting = "AzureWebJobsServiceBus";
         
         public string ConnectionString { get; }
-        public ConnectionAuthenticationType ConnectionType { get; } = ConnectionAuthenticationType.Unknown;
+        public ConnectionAuthenticationType ConnectionType { get; }
 
         public ServiceBusConnectionConfiguration(string connectionString, ConnectionAuthenticationType connectionType)
         {
@@ -39,7 +39,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration
 
             if (connectionString == null)
             {
-                throw new ArgumentNullException("connectionString", "ConnectionString must be set against AzureWebJobServiceBus for Local or AzureWebJobServiceBus__fullyQualifiedNamespace for environments");
+                throw new ArgumentNullException("ConnectionString", "ConnectionString must be set against AzureWebJobServiceBus for Local or AzureWebJobServiceBus__fullyQualifiedNamespace for environments");
             }
 
             return new ServiceBusConnectionConfiguration(connectionString, connectionType);

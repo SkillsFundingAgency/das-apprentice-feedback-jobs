@@ -66,8 +66,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
                     .DefiningCommandsAs(IsCommand);
 
                 configuration.Transport.SubscriptionRuleNamingConvention(AzureQueueNameShortener.Shorten);
-                //configuration.Transport.Routing().RouteToEndpoint(typeof(SendEmailCommand), QueueNames.NotificationsQueue);
-
+                
                 configuration.AdvancedConfiguration.Pipeline.Register(new LogIncomingBehaviour(), nameof(LogIncomingBehaviour));
                 configuration.AdvancedConfiguration.Pipeline.Register(new LogOutgoingBehaviour(), nameof(LogOutgoingBehaviour));
 
