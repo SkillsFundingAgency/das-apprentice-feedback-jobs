@@ -14,7 +14,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         public ApprenticeFeedbackSummaryTimerTrigger(IFunctionEndpoint endpoint) => _endpoint = endpoint;
 
         [FunctionName("GenerateApprenticeFeedbackSummaries")]
-        public void ApprenticeFeedbackSummary([TimerTrigger("0 */3 * * * *")] TimerInfo timer, ExecutionContext executionContext, ILogger logger)
+        public void ApprenticeFeedbackSummary([TimerTrigger("0 0 */3 * * *")] TimerInfo timer, ExecutionContext executionContext, ILogger logger)
         {
             logger.LogInformation($"GenerateApprenticeFeedbackSummaries Timer trigger function executed at {DateTime.UtcNow}");
             var sendOptions = SendLocally.Options;
