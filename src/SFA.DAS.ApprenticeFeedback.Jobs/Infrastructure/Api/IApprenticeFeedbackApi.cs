@@ -8,5 +8,8 @@ namespace SFA.DAS.ApprenticeCommitments.Jobs.Api
     {
         [Post("apprenticefeedbacktarget")]
         Task CreateFeedbackTarget([Body] ApprenticeConfirmedDetails apprenticeCommitment);
+
+        [Post("dataload/generate-feedback-summaries")]
+        Task GenerateFeedbackSummaries();
     }
 }
