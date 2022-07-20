@@ -11,16 +11,16 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
     public class ApprenticeFeedbackSummaryHttpTrigger
     {
-        private readonly IFunctionEndpoint endpoint;
+        private readonly IFunctionEndpoint _endpoint;
 
-        public ApprenticeFeedbackSummaryHttpTrigger(IFunctionEndpoint endpoint) => this.endpoint = endpoint;
+        public ApprenticeFeedbackSummaryHttpTrigger(IFunctionEndpoint endpoint) => _endpoint = endpoint;
 
         [FunctionName("GenerateApprenticeFeedbackSummariesHttp")]
         public void ApprenticeFeedbackSummary([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest request, ExecutionContext executionContext, ILogger logger)
         {
             logger.LogInformation($"GenerateApprenticeFeedbackSummaries Http trigger function executed at {DateTime.UtcNow}");
             var sendOptions = SendLocally.Options;
-            endpoint.Send(new GenerateApprenticeFeedbackSummariesCommand(), sendOptions, executionContext, logger);
+            _endpoint.Send(new GenerateApprenticeFeedbackSummariesCommand(), sendOptions, executionContext, logger);
         }
     }
 }

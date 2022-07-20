@@ -13,9 +13,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
     public class ApprenticeshipFeedbackSimulationHttpTrigger
     {
-        private readonly IFunctionEndpoint endpoint;
+        private readonly IFunctionEndpoint _endpoint;
 
-        public ApprenticeshipFeedbackSimulationHttpTrigger(IFunctionEndpoint endpoint) => this.endpoint = endpoint;
+        public ApprenticeshipFeedbackSimulationHttpTrigger(IFunctionEndpoint endpoint) => _endpoint = endpoint;
 
         [FunctionName("HandleApprenticeshipConfirmedEventTrigger")]
         public Task<IActionResult> ApprenticeshipCreatedEvent(
@@ -30,7 +30,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             {
                 var @event = JsonConvert.DeserializeObject<T>(await req.Content.ReadAsStringAsync());
 
-                await endpoint.Publish(@event, executionContext, log);
+                await _endpoint.Publish(@event, executionContext, log);
 
                 return new AcceptedResult();
             }

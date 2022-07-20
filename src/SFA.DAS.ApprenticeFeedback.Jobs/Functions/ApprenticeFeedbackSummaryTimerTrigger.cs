@@ -9,16 +9,16 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
     public class ApprenticeFeedbackSummaryTimerTrigger
     {
-        private readonly IFunctionEndpoint endpoint;
+        private readonly IFunctionEndpoint _endpoint;
 
-        public ApprenticeFeedbackSummaryTimerTrigger(IFunctionEndpoint endpoint) => this.endpoint = endpoint;
+        public ApprenticeFeedbackSummaryTimerTrigger(IFunctionEndpoint endpoint) => _endpoint = endpoint;
 
         [FunctionName("GenerateApprenticeFeedbackSummaries")]
         public void ApprenticeFeedbackSummary([TimerTrigger("0 */3 * * * *")] TimerInfo timer, ExecutionContext executionContext, ILogger logger)
         {
             logger.LogInformation($"GenerateApprenticeFeedbackSummaries Timer trigger function executed at {DateTime.UtcNow}");
             var sendOptions = SendLocally.Options;
-            endpoint.Send(new GenerateApprenticeFeedbackSummariesCommand(), sendOptions, executionContext, logger);
+            _endpoint.Send(new GenerateApprenticeFeedbackSummariesCommand(), sendOptions, executionContext, logger);
         }
     }
 }
