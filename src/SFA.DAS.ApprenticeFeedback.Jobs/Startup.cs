@@ -1,4 +1,4 @@
-﻿using Azure.Identity;
+using Azure.Identity;
 using MediatR;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
