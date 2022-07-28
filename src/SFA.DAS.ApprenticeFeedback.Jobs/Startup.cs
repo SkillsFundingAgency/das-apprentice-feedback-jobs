@@ -14,6 +14,7 @@ using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
 using SFA.DAS.Http.Configuration;
+using SFA.DAS.Notifications.Messages.Commands;
 
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -70,6 +71,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
                     .DefiningCommandsAs(IsCommand);
 
                 configuration.Transport.SubscriptionRuleNamingConvention(AzureQueueNameShortener.Shorten);
+                configuration.Transport.Routing().RouteToEndpoint(typeof(SendEmailCommand), QueueNames.NotificationsQueue);
 
                 configuration.AdvancedConfiguration.Pipeline.Register(new LogIncomingBehaviour(), nameof(LogIncomingBehaviour));
                 configuration.AdvancedConfiguration.Pipeline.Register(new LogOutgoingBehaviour(), nameof(LogOutgoingBehaviour));
@@ -87,6 +89,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
             builder.Services.AddTransient<Http.MessageHandlers.DefaultHeadersHandler>();
             builder.Services.AddTransient<Http.MessageHandlers.LoggingMessageHandler>();
             builder.Services.AddTransient<Http.MessageHandlers.ApimHeadersHandler>();
+            builder.Services.AddTransient<EmailService>();
+            //builder.Services.AddTransient<IEmailService, EmailService>()
+
 
             var url = builder.Services
                 .BuildServiceProvider()

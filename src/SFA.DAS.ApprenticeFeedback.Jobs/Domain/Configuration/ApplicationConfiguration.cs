@@ -5,5 +5,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration
     {
         public ApprenticeFeedbackApiConfiguration ApprenticeFeedbackOuterApi { get; set; }
         public NServiceBusConfiguration NServiceBusConfiguration { get; set; }
+        public NotificationsConfiguration Notifications { get; set; }
     }
 }
