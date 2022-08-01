@@ -9,12 +9,9 @@ using NServiceBus;
 using RestEase.HttpClientFactory;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs;
-using SFA.DAS.ApprenticeFeedback.Jobs.Application.Services;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
-using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
 using SFA.DAS.Http.Configuration;
-using SFA.DAS.Notifications.Messages.Commands;
 
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -45,7 +42,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
             {
                 var configuration = new ServiceBusTriggeredEndpointConfiguration(EndpointName);
                 var connectionStringConfiguration = ServiceBusConnectionConfiguration.GetServiceBusConnectionString(appConfiguration);
-
                 if (connectionStringConfiguration.ConnectionType == ServiceBusConnectionConfiguration.ConnectionAuthenticationType.ManagedIdentity)
                 {
                     configuration.Transport.ConnectionString(connectionStringConfiguration.ConnectionString);
@@ -71,7 +67,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
                     .DefiningCommandsAs(IsCommand);
 
                 configuration.Transport.SubscriptionRuleNamingConvention(AzureQueueNameShortener.Shorten);
-                configuration.Transport.Routing().RouteToEndpoint(typeof(SendEmailCommand), QueueNames.NotificationsQueue);
 
                 configuration.AdvancedConfiguration.Pipeline.Register(new LogIncomingBehaviour(), nameof(LogIncomingBehaviour));
                 configuration.AdvancedConfiguration.Pipeline.Register(new LogOutgoingBehaviour(), nameof(LogOutgoingBehaviour));

@@ -3,7 +3,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <Nullable>enable</Nullable>
-    <StartDevelopmentStorage>False</StartDevelopmentStorage>
   </PropertyGroup>
   <ItemGroup>
     <Resource Include="nlog.config" />
@@ -23,7 +22,6 @@
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
     <PackageReference Include="SFA.DAS.Http" Version="3.2.65" />
     <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
-    <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="local.settings.json">
