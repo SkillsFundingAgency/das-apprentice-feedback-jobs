@@ -89,9 +89,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
             builder.Services.AddTransient<Http.MessageHandlers.DefaultHeadersHandler>();
             builder.Services.AddTransient<Http.MessageHandlers.LoggingMessageHandler>();
             builder.Services.AddTransient<Http.MessageHandlers.ApimHeadersHandler>();
-            builder.Services.AddTransient<EmailService>();
-            //builder.Services.AddTransient<IEmailService, EmailService>()
-
 
             var url = builder.Services
                 .BuildServiceProvider()
@@ -99,11 +96,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
                 .ApiBaseUrl;
 
             builder.Services.AddRestEaseClient<IApprenticeFeedbackApi>(url)
-                .AddHttpMessageHandler<Http.MessageHandlers.DefaultHeadersHandler>()
-                .AddHttpMessageHandler<Http.MessageHandlers.ApimHeadersHandler>()
-                .AddHttpMessageHandler<Http.MessageHandlers.LoggingMessageHandler>();
-
-            builder.Services.AddRestEaseClient<IApprenticeFeedbackEmailTransactionApi>(url)
                 .AddHttpMessageHandler<Http.MessageHandlers.DefaultHeadersHandler>()
                 .AddHttpMessageHandler<Http.MessageHandlers.ApimHeadersHandler>()
                 .AddHttpMessageHandler<Http.MessageHandlers.LoggingMessageHandler>();
