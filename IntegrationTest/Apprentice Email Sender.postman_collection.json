@@ -9,7 +9,7 @@
 		{
 			"name": "Manual Trigger",
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
