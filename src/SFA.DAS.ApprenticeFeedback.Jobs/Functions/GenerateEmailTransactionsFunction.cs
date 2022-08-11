@@ -15,9 +15,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
     public class GenerateEmailTransactionsFunction
     {
         private readonly ILogger<GenerateEmailTransactionsFunction> _log;
-        private readonly IApprenticeFeedbackEmailTransactionApi _api;
+        private readonly IApprenticeFeedbackApi _api;
 
-        public GenerateEmailTransactionsFunction(ILogger<GenerateEmailTransactionsFunction> log, IApprenticeFeedbackEmailTransactionApi api) //, IApprenticeFeedbackEmailTransactionService service)
+        public GenerateEmailTransactionsFunction(ILogger<GenerateEmailTransactionsFunction> log, IApprenticeFeedbackApi api)
         {
             _api = api;
             _log = log;
@@ -30,7 +30,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             try
             {
                 _log.LogInformation("Starting GenerateEmailTransactions");
-                GetEmailTransactionsResponse response = await _api.GenerateEmailTransactions(new GenerateEmailTransactionsRequest());
+                GetEmailTransactionsResponse response = await _api.GenerateEmailTransactions();
                 _log.LogInformation($"GenerateEmailTransactions completed with {response.Count} transactions with created date {response.CreatedOn}");
                 return;
             }
