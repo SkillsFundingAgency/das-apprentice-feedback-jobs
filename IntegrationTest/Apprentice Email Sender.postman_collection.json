@@ -1,0 +1,32 @@
+{
+	"info": {
+		"_postman_id": "26e5ebeb-5249-4ea0-8079-98b8d60d6609",
+		"name": "Apprentice Email Sender",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22107532"
+	},
+	"item": [
+		{
+			"name": "Manual Trigger",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{azure-fuction-url}}/api/ManualTrigger",
+					"host": [
+						"{{azure-fuction-url}}"
+					],
+					"path": [
+						"api",
+						"ManualTrigger"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
