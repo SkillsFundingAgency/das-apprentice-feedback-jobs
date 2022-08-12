@@ -24,7 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         }
 
         [FunctionName("GenerateEmailTransactions")]
-        public async Task Run([TimerTrigger("%FunctionsOptions:GenerateEmailTransactionsOptions:Schedule%", RunOnStartup = false)] TimerInfo myTimer,
+        public async Task Run([TimerTrigger("%FunctionsOptions:GenerateEmailTransactionsSchedule%", RunOnStartup = false)] TimerInfo myTimer,
             ILogger log)
         {
             try

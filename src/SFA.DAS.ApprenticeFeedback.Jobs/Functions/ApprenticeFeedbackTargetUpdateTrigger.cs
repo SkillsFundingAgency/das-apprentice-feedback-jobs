@@ -102,7 +102,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         // to be updated and triggers the orchestration
         [FunctionName(nameof(UpdateApprenticeFeedbackTargetTimerTrigger))]
         public async Task UpdateApprenticeFeedbackTargetTimerTrigger(
-           [TimerTrigger("%ApprenticeFeedbackTargetUpdateSchedule%"
+           [TimerTrigger("%FunctionsOptions:ApprenticeFeedbackTargetUpdateSchedule%"
 #if DEBUG
             , RunOnStartup=true  // does not seem to work
 #endif
