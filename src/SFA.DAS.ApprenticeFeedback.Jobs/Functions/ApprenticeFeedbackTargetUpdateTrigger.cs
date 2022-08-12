@@ -145,15 +145,5 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
                 throw;
             }
         }
-
-        [FunctionName(nameof(RetryQueueTrigger))]
-        public async Task RetryQueueTrigger(
-            [QueueTrigger("bundle-1")]
-            CloudQueueMessage message,
-            ILogger logger,
-            ExecutionContext context)
-        {
-            await _endpoint.ProcessNonAtomic(null, context, logger);
-        }
     }
 }
