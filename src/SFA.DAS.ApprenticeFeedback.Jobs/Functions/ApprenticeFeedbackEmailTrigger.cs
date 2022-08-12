@@ -74,31 +74,31 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             return responses;
         }
 
-        // Timer entry point - trigger the orchestration
-        [FunctionName(nameof(TimerTrigger))]
-        public async Task TimerTrigger(
-           [TimerTrigger("%ApprenticeFeedbackTargetUpdateSchedule%"
-#if (RUNONSTARTUP)
-            , RunOnStartup=true  
-#endif
-            )] TimerInfo myTimer,
-            [DurableClient] IDurableOrchestrationClient orchestrationClient
-        )
-        {
-            _log.LogInformation("Timer fired.");
-            await RunOrchestrator(orchestrationClient);
-        }
+//        // Timer entry point - trigger the orchestration
+//        [FunctionName(nameof(TimerTrigger))]
+//        public async Task TimerTrigger(
+//           [TimerTrigger("%ApprenticeFeedbackTargetUpdateSchedule%"
+//#if (RUNONSTARTUP)
+//            , RunOnStartup=true  
+//#endif
+//            )] TimerInfo myTimer,
+//            [DurableClient] IDurableOrchestrationClient orchestrationClient
+//        )
+//        {
+//            _log.LogInformation("Timer fired.");
+//            await RunOrchestrator(orchestrationClient);
+//        }
 
-        // Http entry point - manually trigger the orchestration
-        [FunctionName(nameof(ManualTrigger))]
-        public async Task<IActionResult> ManualTrigger(
-            [HttpTrigger(AuthorizationLevel.Function, "PUT")] HttpRequestMessage req,
-            [DurableClient] IDurableOrchestrationClient orchestrationClient
-        )
-        {
-            _log.LogInformation("Manual http trigger fired.");
-            return new OkObjectResult($"Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
-        }
+        //// Http entry point - manually trigger the orchestration
+        //[FunctionName(nameof(ManualTrigger))]
+        //public async Task<IActionResult> ManualTrigger(
+        //    [HttpTrigger(AuthorizationLevel.Function, "PUT")] HttpRequestMessage req,
+        //    [DurableClient] IDurableOrchestrationClient orchestrationClient
+        //)
+        //{
+        //    _log.LogInformation("Manual http trigger fired.");
+        //    return new OkObjectResult($"Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
+        //}
 
         private async Task<string> RunOrchestrator(IDurableOrchestrationClient orchestrationClient)
         {
