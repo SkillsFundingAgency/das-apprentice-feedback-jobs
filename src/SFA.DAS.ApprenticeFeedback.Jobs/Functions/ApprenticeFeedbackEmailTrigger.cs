@@ -33,8 +33,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
         // Activity function does the work. Called by the orchestrator.
         // Recommendation is that this activity should never run for longer than 5 minutes.
-        [FunctionName(nameof(TheActivity))]
-        public async Task<SendApprenticeFeedbackEmailResponse> TheActivity(
+        [FunctionName(nameof(ApprenticeFeedbackEmailActivity))]
+        public async Task<SendApprenticeFeedbackEmailResponse> ApprenticeFeedbackEmailActivity(
             [ActivityTrigger] ApprenticeFeedbackTransaction emailTarget)
         {
             _log.LogInformation($"Activity function is performing email send activity for apprentice feedback transaction Id {emailTarget.ApprenticeFeedbackTransactionId}");
@@ -48,8 +48,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
 
         // Orchestrator function kicks-off the activity functions and gathers the responses
-        [FunctionName(nameof(TheOrchestrator))]
-        public async Task<SendApprenticeFeedbackEmailResponse[]> TheOrchestrator(
+        [FunctionName(nameof(ApprenticeFeedbackEmailOrchestrator))]
+        public async Task<SendApprenticeFeedbackEmailResponse[]> ApprenticeFeedbackEmailOrchestrator(
            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext
             , ExecutionContext executionContext
            )
@@ -62,7 +62,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             var emailTargets = orchestrationContext.GetInput<IEnumerable<ApprenticeFeedbackTransaction>>();
             var tasks = emailTargets
                 .Select(et => orchestrationContext.CallActivityAsync<SendApprenticeFeedbackEmailResponse>(
-                        nameof(TheActivity),
+                        nameof(ApprenticeFeedbackEmailActivity),
                         et
                 )
             );
@@ -74,31 +74,31 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             return responses;
         }
 
-//        // Timer entry point - trigger the orchestration
-//        [FunctionName(nameof(TimerTrigger))]
-//        public async Task TimerTrigger(
-//           [TimerTrigger("%ApprenticeFeedbackTargetUpdateSchedule%"
-//#if (RUNONSTARTUP)
-//            , RunOnStartup=true  
-//#endif
-//            )] TimerInfo myTimer,
-//            [DurableClient] IDurableOrchestrationClient orchestrationClient
-//        )
-//        {
-//            _log.LogInformation("Timer fired.");
-//            await RunOrchestrator(orchestrationClient);
-//        }
+        // Timer entry point - trigger the orchestration
+        [FunctionName(nameof(ApprenticeFeedbackEmailTimerTrigger))]
+        public async Task ApprenticeFeedbackEmailTimerTrigger(
+           [TimerTrigger("%FunctionsOptions:ApprenticeFeedbackEmailSchedule%"
+#if (RUNONSTARTUP)
+            , RunOnStartup=true  
+#endif
+            )] TimerInfo myTimer,
+            [DurableClient] IDurableOrchestrationClient orchestrationClient
+        )
+        {
+            _log.LogInformation("Timer fired.");
+            await RunOrchestrator(orchestrationClient);
+        }
 
-        //// Http entry point - manually trigger the orchestration
-        //[FunctionName(nameof(ManualTrigger))]
-        //public async Task<IActionResult> ManualTrigger(
-        //    [HttpTrigger(AuthorizationLevel.Function, "PUT")] HttpRequestMessage req,
-        //    [DurableClient] IDurableOrchestrationClient orchestrationClient
-        //)
-        //{
-        //    _log.LogInformation("Manual http trigger fired.");
-        //    return new OkObjectResult($"Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
-        //}
+        // Http entry point - manually trigger the orchestration
+        [FunctionName(nameof(ApprenticeFeedbackEmailHttpTrigger))]
+        public async Task<IActionResult> ApprenticeFeedbackEmailHttpTrigger(
+            [HttpTrigger(AuthorizationLevel.Function, "PUT")] HttpRequestMessage req,
+            [DurableClient] IDurableOrchestrationClient orchestrationClient
+        )
+        {
+            _log.LogInformation("Manual http trigger fired.");
+            return new OkObjectResult($"Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
+        }
 
         private async Task<string> RunOrchestrator(IDurableOrchestrationClient orchestrationClient)
         {
@@ -109,7 +109,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
                 // Start the orchestration.
                 var result = await orchestrationClient.StartNewAsync(
-                    nameof(TheOrchestrator),
+                    nameof(ApprenticeFeedbackEmailOrchestrator),
                     emailTargets
                 );
 

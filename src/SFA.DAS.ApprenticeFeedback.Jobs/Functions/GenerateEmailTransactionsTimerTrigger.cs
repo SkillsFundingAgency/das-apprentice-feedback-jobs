@@ -12,19 +12,19 @@ using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
-    public class GenerateEmailTransactionsFunction
+    public class GenerateEmailTransactionsTimerTrigger
     {
-        private readonly ILogger<GenerateEmailTransactionsFunction> _log;
+        private readonly ILogger<GenerateEmailTransactionsTimerTrigger> _log;
         private readonly IApprenticeFeedbackApi _api;
 
-        public GenerateEmailTransactionsFunction(ILogger<GenerateEmailTransactionsFunction> log, IApprenticeFeedbackApi api)
+        public GenerateEmailTransactionsTimerTrigger(ILogger<GenerateEmailTransactionsTimerTrigger> log, IApprenticeFeedbackApi api)
         {
             _api = api;
             _log = log;
         }
 
-        [FunctionName("GenerateEmailTransactions")]
-        public async Task Run([TimerTrigger("%FunctionsOptions:GenerateEmailTransactionsOptions:Schedule%", RunOnStartup = false)] TimerInfo myTimer,
+        [FunctionName(nameof(GenerateEmailTransactionsTimerTrigger))]
+        public async Task Run([TimerTrigger("%FunctionsOptions:GenerateEmailTransactionsSchedule%", RunOnStartup = false)] TimerInfo myTimer,
             ILogger log)
         {
             try

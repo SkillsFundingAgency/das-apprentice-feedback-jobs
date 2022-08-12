@@ -63,8 +63,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
 
         // Orchestrator function kicks-off the activity functions and gathers the responses
-        [FunctionName(nameof(UpdateApprenticeFeedbackOrchestrator))]
-        public async Task<ApprenticeFeedbackTargetUpdateResponse[]> UpdateApprenticeFeedbackOrchestrator (
+        [FunctionName(nameof(UpdateApprenticeFeedbackTargetOrchestrator))]
+        public async Task<ApprenticeFeedbackTargetUpdateResponse[]> UpdateApprenticeFeedbackTargetOrchestrator (
            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext
             , ExecutionContext executionContext
            )
@@ -102,7 +102,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         // to be updated and triggers the orchestration
         [FunctionName(nameof(UpdateApprenticeFeedbackTargetTimerTrigger))]
         public async Task UpdateApprenticeFeedbackTargetTimerTrigger(
-           [TimerTrigger("%ApprenticeFeedbackTargetUpdateSchedule%"
+           [TimerTrigger("%FunctionsOptions:ApprenticeFeedbackTargetUpdateSchedule%"
 #if DEBUG
             , RunOnStartup=true  // does not seem to work
 #endif
@@ -133,7 +133,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
                 // Start the orchestration
                 var result = await orchestrationClient.StartNewAsync(
-                    nameof(UpdateApprenticeFeedbackOrchestrator),
+                    nameof(UpdateApprenticeFeedbackTargetOrchestrator),
                     feedbackTargetsForUpdate
                 );
 
@@ -144,16 +144,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
                 _log.LogCritical(ex, "Orchestrator failed. Cannot update feedback targets.");
                 throw;
             }
-        }
-
-        [FunctionName(nameof(RetryQueueTrigger))]
-        public async Task RetryQueueTrigger(
-            [QueueTrigger("bundle-1")]
-            CloudQueueMessage message,
-            ILogger logger,
-            ExecutionContext context)
-        {
-            await _endpoint.ProcessNonAtomic(null, context, logger);
         }
     }
 }
