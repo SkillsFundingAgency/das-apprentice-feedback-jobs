@@ -23,7 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _log = log;
         }
 
-        [FunctionName("GenerateEmailTransactions")]
+        [FunctionName(nameof(GenerateEmailTransactionsTimerTrigger)]
         public async Task Run([TimerTrigger("%FunctionsOptions:GenerateEmailTransactionsSchedule%", RunOnStartup = false)] TimerInfo myTimer,
             ILogger log)
         {
