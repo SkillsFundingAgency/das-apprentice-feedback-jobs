@@ -37,9 +37,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         public async Task<SendApprenticeFeedbackEmailResponse> ApprenticeFeedbackEmailActivity(
             [ActivityTrigger] ApprenticeFeedbackTransaction emailTarget)
         {
-            _log.LogInformation($"Activity function is performing email send activity for apprentice feedback transaction Id {emailTarget.ApprenticeFeedbackTransactionId}");
+            _log.LogInformation($"Activity function is performing email send activity for apprentice feedback transaction Id {emailTarget.Id}");
             
-            var response = await _apprenticeFeedbackApi.ProcessEmailTransaction(emailTarget.ApprenticeFeedbackTransactionId, emailTarget);
+            var response = await _apprenticeFeedbackApi.ProcessEmailTransaction(emailTarget.Id, emailTarget);
 
             _log.LogInformation($"Activity function response: apprentice feedback transaction Id {response.ApprenticeFeedbackTransactionId} email status = {response.EmailStatus}");
 
@@ -92,7 +92,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         // Http entry point - manually trigger the orchestration
         [FunctionName(nameof(ApprenticeFeedbackEmailHttpTrigger))]
         public async Task<IActionResult> ApprenticeFeedbackEmailHttpTrigger(
-            [HttpTrigger(AuthorizationLevel.Function, "PUT")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient orchestrationClient
         )
         {

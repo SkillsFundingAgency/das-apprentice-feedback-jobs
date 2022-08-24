@@ -116,7 +116,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
         [FunctionName(nameof(UpdateApprenticeFeedbackTargetManualTrigger))]
         public async Task<IActionResult> UpdateApprenticeFeedbackTargetManualTrigger(
-            [HttpTrigger(AuthorizationLevel.Function, "GET")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient orchestrationClient
         )
         {
