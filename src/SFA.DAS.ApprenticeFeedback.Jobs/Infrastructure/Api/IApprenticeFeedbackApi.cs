@@ -20,7 +20,7 @@ namespace SFA.DAS.ApprenticeCommitments.Jobs.Api
         Task<IEnumerable<ApprenticeFeedbackTransaction>> GetFeedbackTransactionsToEmail([Path] int batchSize);
 
         [Post("feedbacktransaction/{id}")]
-        Task<SendApprenticeFeedbackEmailResponse> ProcessEmailTransaction([Path] Guid id, [Body] ApprenticeFeedbackTransaction apprenticeFeedbackTransaction);
+        Task<SendApprenticeFeedbackEmailResponse> ProcessEmailTransaction([Path] long id, [Body] ApprenticeFeedbackTransaction apprenticeFeedbackTransaction);
         [Get("apprenticefeedbacktarget/requiresupdate")]
         Task<List<FeedbackTargetForUpdate>> GetFeedbackTargetsForUpdate(int batchSize);
 

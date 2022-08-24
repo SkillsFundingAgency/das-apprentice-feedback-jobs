@@ -16,7 +16,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         public ApprenticeFeedbackSummaryHttpTrigger(IFunctionEndpoint endpoint) => _endpoint = endpoint;
 
         [FunctionName("GenerateApprenticeFeedbackSummariesHttp")]
-        public void ApprenticeFeedbackSummary([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest request, ExecutionContext executionContext, ILogger logger)
+        public void ApprenticeFeedbackSummary([HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequest request, ExecutionContext executionContext, ILogger logger)
         {
             logger.LogInformation($"GenerateApprenticeFeedbackSummaries Http trigger function executed at {DateTime.UtcNow}");
             var sendOptions = SendLocally.Options;

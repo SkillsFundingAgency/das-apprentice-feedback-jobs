@@ -92,7 +92,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         // Http entry point - manually trigger the orchestration
         [FunctionName(nameof(ApprenticeFeedbackEmailHttpTrigger))]
         public async Task<IActionResult> ApprenticeFeedbackEmailHttpTrigger(
-            [HttpTrigger(AuthorizationLevel.Function, "PUT")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient orchestrationClient
         )
         {
