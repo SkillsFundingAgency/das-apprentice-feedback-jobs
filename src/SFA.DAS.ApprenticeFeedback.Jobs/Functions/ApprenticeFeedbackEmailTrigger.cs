@@ -37,9 +37,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         public async Task<SendApprenticeFeedbackEmailResponse> ApprenticeFeedbackEmailActivity(
             [ActivityTrigger] ApprenticeFeedbackTransaction emailTarget)
         {
-            _log.LogInformation($"Activity function is performing email send activity for apprentice feedback transaction Id {emailTarget.Id}");
+            _log.LogInformation($"Activity function is performing email send activity for apprentice feedback transaction Id {emailTarget.ApprenticeFeedbackTransactionId}");
             
-            var response = await _apprenticeFeedbackApi.ProcessEmailTransaction(emailTarget.Id, emailTarget);
+            var response = await _apprenticeFeedbackApi.ProcessEmailTransaction(emailTarget.ApprenticeFeedbackTransactionId, emailTarget);
 
             _log.LogInformation($"Activity function response: apprentice feedback transaction Id {response.ApprenticeFeedbackTransactionId} email status = {response.EmailStatus}");
 
