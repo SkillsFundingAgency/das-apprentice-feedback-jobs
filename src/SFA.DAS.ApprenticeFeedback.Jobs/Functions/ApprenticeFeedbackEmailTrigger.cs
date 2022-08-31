@@ -41,7 +41,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             
             var response = await _apprenticeFeedbackApi.ProcessEmailTransaction(emailTarget.ApprenticeFeedbackTransactionId, emailTarget);
 
-            _log.LogInformation($"Activity function response: apprentice feedback transaction Id {response.ApprenticeFeedbackTransactionId} email status = {response.EmailStatus}");
+            _log.LogInformation($"Activity function response: apprentice feedback transaction Id {response.FeedbackTransactionId} email status = {response.EmailStatus}");
 
             return response;
         }

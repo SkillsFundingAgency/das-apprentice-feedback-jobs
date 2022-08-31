@@ -79,7 +79,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _log.LogInformation($"Orchestrator function has selected the following {aftsForUpdate.Count} apprentice feedback target(s) to update:");
             for(int i = 0; i < aftsForUpdate.Count; i++)
             {
-                _log.LogInformation($"   [{i+1}] - id={aftsForUpdate[i].ApprenticeFeedbackTargetId} apprenticeshipid={aftsForUpdate[i].ApprenticeshipId}");
+                _log.LogTrace($"   [{i+1}] - id={aftsForUpdate[i].ApprenticeFeedbackTargetId} apprenticeshipid={aftsForUpdate[i].ApprenticeshipId}");
             }
 
             var tasks = aftsForUpdate
