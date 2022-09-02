@@ -6,5 +6,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses
     {
         public long ApprenticeFeedbackTransactionId { get; set; }
         public Guid ApprenticeId { get; set; }
+        public Guid ApprenticeFeedbackTargetId { get; set; }
     }
 }
