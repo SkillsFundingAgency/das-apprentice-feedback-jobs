@@ -114,6 +114,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             await RunOrchestrator(orchestrationClient);
         }
 
+#if DEBUG
         [FunctionName(nameof(UpdateApprenticeFeedbackTargetManualTrigger))]
         public async Task<IActionResult> UpdateApprenticeFeedbackTargetManualTrigger(
             [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequestMessage req,
@@ -123,7 +124,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _log.LogInformation("Manual http trigger fired.");
             return new OkObjectResult($"Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
         }
-
+#endif
         private async Task<string> RunOrchestrator(IDurableOrchestrationClient orchestrationClient)
         {
             try

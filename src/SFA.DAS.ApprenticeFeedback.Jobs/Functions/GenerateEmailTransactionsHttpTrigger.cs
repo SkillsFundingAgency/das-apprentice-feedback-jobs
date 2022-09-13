@@ -20,7 +20,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _api = api;
             _log = log;
         }
-
+#if DEBUG
         [FunctionName(nameof(GenerateEmailTransactionsHttpTrigger))]
         public async Task Run([HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequest request, ILogger log)
         {
@@ -36,5 +36,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
                 log.LogError(e, "GenerateEmailTransactions has failed");
             }
         }
+#endif
     }
 }

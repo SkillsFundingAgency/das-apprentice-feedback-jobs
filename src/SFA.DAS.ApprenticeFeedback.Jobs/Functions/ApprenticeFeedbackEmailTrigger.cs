@@ -88,7 +88,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _log.LogInformation("Timer fired.");
             await RunOrchestrator(orchestrationClient);
         }
-
+#if DEBUG
         // Http entry point - manually trigger the orchestration
         [FunctionName(nameof(ApprenticeFeedbackEmailHttpTrigger))]
         public async Task<IActionResult> ApprenticeFeedbackEmailHttpTrigger(
@@ -99,7 +99,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _log.LogInformation("Manual http trigger fired.");
             return new OkObjectResult($"Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
         }
-
+#endif
         private async Task<string> RunOrchestrator(IDurableOrchestrationClient orchestrationClient)
         {
             try
