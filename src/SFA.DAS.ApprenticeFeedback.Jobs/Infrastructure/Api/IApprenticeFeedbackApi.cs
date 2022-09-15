@@ -1,4 +1,5 @@
 ﻿using RestEase;
+using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Models;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
 using System;
@@ -19,6 +20,13 @@ namespace SFA.DAS.ApprenticeCommitments.Jobs.Api
         Task<IEnumerable<ApprenticeFeedbackTransaction>> GetFeedbackTransactionsToEmail([Path] int batchSize);
 
         [Post("feedbacktransaction/{id}")]
-        Task<SendApprenticeFeedbackEmailResponse> ProcessEmailTransaction([Path] Guid id, [Body] ApprenticeFeedbackTransaction apprenticeFeedbackTransaction);
+        Task<SendApprenticeFeedbackEmailResponse> ProcessEmailTransaction([Path] long id, [Body] ApprenticeFeedbackTransaction apprenticeFeedbackTransaction);
+        [Get("apprenticefeedbacktarget/requiresupdate")]
+        Task<List<FeedbackTargetForUpdate>> GetFeedbackTargetsForUpdate(int batchSize);
+
+        [Put("apprenticefeedbacktarget")]
+        Task<ApprenticeFeedbackTargetUpdateResponse> UpdateFeedbackTarget([Body] ApprenticeFeedbackTargetUpdateRequest apprenticeFeedbackTargetToUpdate);
+        [Post("feedbacktransaction")]
+        Task<GetEmailTransactionsResponse> GenerateEmailTransactions();
     }
 }

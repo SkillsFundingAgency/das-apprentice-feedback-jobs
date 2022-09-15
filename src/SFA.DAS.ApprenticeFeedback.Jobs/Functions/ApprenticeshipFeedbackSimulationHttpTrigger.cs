@@ -16,14 +16,14 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         private readonly IFunctionEndpoint _endpoint;
 
         public ApprenticeshipFeedbackSimulationHttpTrigger(IFunctionEndpoint endpoint) => _endpoint = endpoint;
-
+#if DEBUG
         [FunctionName("HandleApprenticeshipConfirmedEventTrigger")]
         public Task<IActionResult> ApprenticeshipCreatedEvent(
             [HttpTrigger(AuthorizationLevel.Function, "POST", Route = "test-apprenticeship-confirmed-event")] HttpRequestMessage req,
             ExecutionContext executionContext,
             ILogger log)
             => Simulate<ApprenticeshipConfirmationConfirmedEvent>(req, executionContext, log);
-
+#endif
         public async Task<IActionResult> Simulate<T>(HttpRequestMessage req, ExecutionContext executionContext, ILogger log)
         {
             try
