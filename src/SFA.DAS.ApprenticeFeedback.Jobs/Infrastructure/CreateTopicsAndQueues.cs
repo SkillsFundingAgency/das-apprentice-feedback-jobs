@@ -3,7 +3,6 @@ using Azure.Messaging.ServiceBus.Administration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
-using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure

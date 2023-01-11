@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Handlers.ApprenticeCommitmentsHandlers
