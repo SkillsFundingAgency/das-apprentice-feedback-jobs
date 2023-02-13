@@ -1,12 +1,10 @@
-﻿using System;
-
-namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses
+﻿namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses
 {
     public enum EmailStatus
     {
-         Successful,
-         NotAllowed,
-         Failed
+        Successful,
+        NotAllowed,
+        Failed
     }
 
     public class SendApprenticeFeedbackEmailResponse

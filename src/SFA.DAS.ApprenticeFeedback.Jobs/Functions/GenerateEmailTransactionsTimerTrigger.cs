@@ -1,13 +1,9 @@
 ﻿
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
-using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests;
+using System;
+using System.Threading.Tasks;
 
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions

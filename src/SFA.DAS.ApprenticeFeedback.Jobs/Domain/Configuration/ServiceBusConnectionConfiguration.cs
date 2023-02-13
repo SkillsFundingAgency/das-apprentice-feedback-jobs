@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration
 {
@@ -9,7 +7,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration
     {
         private const string fullyQualifiedNamespaceConfigSetting = "AzureWebJobsServiceBus:fullyQualifiedNamespace";
         private const string serviceBusConnectionConfigSetting = "AzureWebJobsServiceBus";
-        
+
         public string ConnectionString { get; }
         public ConnectionAuthenticationType ConnectionType { get; }
 

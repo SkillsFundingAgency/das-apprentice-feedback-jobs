@@ -218,6 +218,9 @@
                     "appServicePlanResourceGroup": {
                         "value": "[variables('resourceGroupName')]"
                     },
+                    "netFrameworkVersion": {
+                        "value": "v6.0"
+                    },
                     "subnetResourceId": {
                         "value": "[reference(concat(parameters('subnetObject').name, '-', parameters('utcValue'))).outputs.SubnetResourceId.value]"
                     },
@@ -262,7 +265,7 @@
                                 },
                                 {
                                     "name": "FUNCTIONS_EXTENSION_VERSION",
-                                    "value": "~3"
+                                    "value": "~4"
                                 },
                                 {
                                     "name": "FUNCTIONS_WORKER_RUNTIME",

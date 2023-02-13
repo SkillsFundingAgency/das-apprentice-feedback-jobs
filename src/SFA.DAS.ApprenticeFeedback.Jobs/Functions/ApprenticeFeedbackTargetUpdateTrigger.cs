@@ -3,7 +3,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage.Queue;
 using NServiceBus;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
@@ -40,19 +39,19 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _appConfig = appConfig;
             // Use a logger injected into the constructor rather than a logger as an argument
             // to each function due to a bug in the framework where the log level is not controllable
-            _log = log;  
+            _log = log;
         }
 
 
         // Activity function calls the outer API to perform the update of the Apprentice Feedback Target
         // Recommendation is that this activity should never run for longer than 5 minutes
         [FunctionName(nameof(UpdateApprenticeFeedbackTargetActivity))]
-        public async Task<ApprenticeFeedbackTargetUpdateResponse> UpdateApprenticeFeedbackTargetActivity (
+        public async Task<ApprenticeFeedbackTargetUpdateResponse> UpdateApprenticeFeedbackTargetActivity(
             [ActivityTrigger] FeedbackTargetForUpdate apprenticeFeedbackTargetToUpdate)
         {
             _log.LogInformation($"Activity function is updating apprentice feedback target id '{apprenticeFeedbackTargetToUpdate.ApprenticeFeedbackTargetId}'...");
-            var response = await _apiClient.UpdateFeedbackTarget(new ApprenticeFeedbackTargetUpdateRequest() 
-            { 
+            var response = await _apiClient.UpdateFeedbackTarget(new ApprenticeFeedbackTargetUpdateRequest()
+            {
                 ApprenticeFeedbackTargetId = apprenticeFeedbackTargetToUpdate.ApprenticeFeedbackTargetId,
                 ApprenticeshipId = apprenticeFeedbackTargetToUpdate.ApprenticeshipId
             });
@@ -64,12 +63,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
         // Orchestrator function kicks-off the activity functions and gathers the responses
         [FunctionName(nameof(UpdateApprenticeFeedbackTargetOrchestrator))]
-        public async Task<ApprenticeFeedbackTargetUpdateResponse[]> UpdateApprenticeFeedbackTargetOrchestrator (
+        public async Task<ApprenticeFeedbackTargetUpdateResponse[]> UpdateApprenticeFeedbackTargetOrchestrator(
            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext
             , ExecutionContext executionContext
            )
         {
-            if(orchestrationContext.IsReplaying)
+            if (orchestrationContext.IsReplaying)
             {
                 _log.LogInformation($"Orchestrator function is replaying");
             }
@@ -77,9 +76,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             var aftsForUpdate = orchestrationContext.GetInput<List<FeedbackTargetForUpdate>>();
 
             _log.LogInformation($"Orchestrator function has selected the following {aftsForUpdate.Count} apprentice feedback target(s) to update:");
-            for(int i = 0; i < aftsForUpdate.Count; i++)
+            for (int i = 0; i < aftsForUpdate.Count; i++)
             {
-                _log.LogTrace($"   [{i+1}] - id={aftsForUpdate[i].ApprenticeFeedbackTargetId} apprenticeshipid={aftsForUpdate[i].ApprenticeshipId}");
+                _log.LogTrace($"   [{i + 1}] - id={aftsForUpdate[i].ApprenticeFeedbackTargetId} apprenticeshipid={aftsForUpdate[i].ApprenticeshipId}");
             }
 
             var tasks = aftsForUpdate
@@ -140,7 +139,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _log.LogCritical(ex, "Orchestrator failed. Cannot update feedback targets.");
                 throw;
