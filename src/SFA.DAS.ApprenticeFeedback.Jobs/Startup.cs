@@ -32,7 +32,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
         public override void Configure(IFunctionsHostBuilder builder)
         {
             ConfigureLogging(builder);
-            ConfigureNServiceBus(builder);
+
+            var configuration = builder.GetContext().Configuration;
+            if (configuration["Values:AzureWebJobsServiceBus"] != "Disabled")
+            {
+                ConfigureNServiceBus(builder);
+            }
 
             RegisterServices(builder.Services);
         }
