@@ -16,16 +16,16 @@ namespace SFA.DAS.ApprenticeCommitments.Jobs.Api
         Task GenerateFeedbackSummaries();
 
         [Get("feedbacktransaction?batchSize={batchSize}")]
-        Task<IEnumerable<ApprenticeFeedbackTransaction>> GetFeedbackTransactionsToEmail([Path] int batchSize);
+        Task<IEnumerable<FeedbackTransaction>> GetFeedbackTransactionsToEmail([Path] int batchSize);
 
         [Post("feedbacktransaction/{id}")]
-        Task<SendApprenticeFeedbackEmailResponse> ProcessEmailTransaction([Path] long id, [Body] ApprenticeFeedbackTransaction apprenticeFeedbackTransaction);
+        Task<SendApprenticeFeedbackEmailResponse> ProcessEmailTransaction([Path] long id, [Body] FeedbackTransaction apprenticeFeedbackTransaction);
 
         [Get("apprenticefeedbacktarget/requiresupdate")]
         Task<List<FeedbackTargetForUpdate>> GetFeedbackTargetsForUpdate(int batchSize);
 
         [Post("feedbacktransaction/{id}/track-click")]
-        Task TrackFeedbackTransactionClick([Path] long id, [Body] ApprenticeFeedbackTransactionClick apprenticeFeedbackTransactionClick);
+        Task TrackFeedbackTransactionClick([Path] long id, [Body] FeedbackTransactionClickRequest apprenticeFeedbackTransactionClick);
 
         [Put("apprenticefeedbacktarget")]
         Task<ApprenticeFeedbackTargetUpdateResponse> UpdateFeedbackTarget([Body] ApprenticeFeedbackTargetUpdateRequest apprenticeFeedbackTargetToUpdate);

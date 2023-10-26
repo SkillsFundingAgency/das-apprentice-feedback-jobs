@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using NServiceBus;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
+using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests;
 using SFA.DAS.ApprenticeFeedback.Messages.Events;
 using System;
 using System.Threading.Tasks;
@@ -28,8 +29,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Handlers.ApprenticeFeedbackHandlers
                 var jsonMessage = JsonConvert.SerializeObject(message);
                 _logger.LogDebug($"Handling ApprenticeEmailClickEventHandler {jsonMessage}");
 
-                await _api.TrackFeedbackTransactionClick(message.FeedbackTransactionId, new Infrastructure.Api.Responses.ApprenticeFeedbackTransactionClick
+                await _api.TrackFeedbackTransactionClick(message.FeedbackTransactionId, new FeedbackTransactionClickRequest
                 {
+                    FeedbackTransactionId = message.FeedbackTransactionId,
                     ApprenticeFeedbackTargetId = message.ApprenticeFeedbackTargetId,
                     LinkName = message.Linkname,
                     LinkUrl = message.Link,
