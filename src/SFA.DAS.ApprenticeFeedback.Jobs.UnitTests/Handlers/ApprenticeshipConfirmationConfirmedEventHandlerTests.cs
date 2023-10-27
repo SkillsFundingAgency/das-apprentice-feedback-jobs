@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
 {
-    public class WhenApprenticeshipDetailsHaveBeenConfirmed
+    public class ApprenticeshipConfirmationConfirmedEventHandlerTests
     {
         private Mock<IApprenticeFeedbackApi> _mockApi;
         private Mock<ILogger<ApprenticeshipConfirmationConfirmedEventHandler>> _mockLogger;

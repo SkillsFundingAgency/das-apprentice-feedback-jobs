@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
 {
-    public class GenerateApprenticeFeedbackSummariesCommandTests
+    public class GenerateApprenticeFeedbackSummariesCommandHandlerTests
     {
         private Mock<IApprenticeFeedbackApi> _mockApi;
         private Mock<ILogger<GenerateApprenticeFeedbackSummariesCommandHandler>> _mockLogger;
