@@ -56,9 +56,7 @@
         },
         "backEndCORSOrigins": {
             "type": "array",
-            "defaultValue": [
-                "*"
-            ]
+            "defaultValue": []
         },
         "appServicePlanSize": {
             "type": "string",
