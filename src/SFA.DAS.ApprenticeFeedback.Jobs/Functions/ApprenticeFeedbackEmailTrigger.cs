@@ -35,11 +35,11 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         // Recommendation is that this activity should never run for longer than 5 minutes.
         [FunctionName(nameof(ApprenticeFeedbackEmailActivity))]
         public async Task<SendApprenticeFeedbackEmailResponse> ApprenticeFeedbackEmailActivity(
-            [ActivityTrigger] ApprenticeFeedbackTransaction emailTarget)
+            [ActivityTrigger] FeedbackTransaction emailTarget)
         {
-            _log.LogInformation($"Activity function is performing email send activity for apprentice feedback transaction Id {emailTarget.ApprenticeFeedbackTransactionId}");
+            _log.LogInformation($"Activity function is performing email send activity for apprentice feedback transaction Id {emailTarget.FeedbackTransactionId}");
 
-            var response = await _apprenticeFeedbackApi.ProcessEmailTransaction(emailTarget.ApprenticeFeedbackTransactionId, emailTarget);
+            var response = await _apprenticeFeedbackApi.ProcessEmailTransaction(emailTarget.FeedbackTransactionId, emailTarget);
 
             _log.LogInformation($"Activity function response: apprentice feedback transaction Id {response.FeedbackTransactionId} email status = {response.EmailStatus}");
 
@@ -59,7 +59,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
                 _log.LogInformation($"Orchestrator function is replaying");
             }
 
-            var emailTargets = orchestrationContext.GetInput<IEnumerable<ApprenticeFeedbackTransaction>>();
+            var emailTargets = orchestrationContext.GetInput<IEnumerable<FeedbackTransaction>>();
             var tasks = emailTargets
                 .Select(et => orchestrationContext.CallActivityAsync<SendApprenticeFeedbackEmailResponse>(
                         nameof(ApprenticeFeedbackEmailActivity),
