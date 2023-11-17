@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses
 {
-    public class ApprenticeFeedbackTargetUpdateResponse
+    public class UpdateApprenticeFeedbackTargetResponse
     {
         public FeedbackTargetForUpdate ApprenticeFeedbackTarget { get; set; }
         public bool Success { get; set; }

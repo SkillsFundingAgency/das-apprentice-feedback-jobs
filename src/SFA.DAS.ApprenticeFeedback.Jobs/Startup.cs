@@ -9,6 +9,7 @@ using RestEase.HttpClientFactory;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
+using SFA.DAS.ApprenticeFeedback.Jobs.Functions;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
 using SFA.DAS.Http.Configuration;
 using System;
@@ -104,6 +105,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
             services.AddTransient<Http.MessageHandlers.DefaultHeadersHandler>();
             services.AddTransient<Http.MessageHandlers.LoggingMessageHandler>();
             services.AddTransient<Http.MessageHandlers.ApimHeadersHandler>();
+
+            services.AddSingleton<ProcessFeedbackTransactionsTimerTrigger>();
+            services.AddSingleton<UpdateApprenticeFeedbackTargetTimerTrigger>();
 
             var url = services
                 .BuildServiceProvider()

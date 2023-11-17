@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Messages.Commands;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
-using System;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
@@ -13,10 +12,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
         public ApprenticeFeedbackSummaryTimerTrigger(IFunctionEndpoint endpoint) => _endpoint = endpoint;
 
-        [FunctionName("GenerateApprenticeFeedbackSummaries")]
-        public void ApprenticeFeedbackSummary([TimerTrigger("0 0 */3 * * *")] TimerInfo timer, ExecutionContext executionContext, ILogger logger)
+        [FunctionName("ApprenticeFeedbackSummaryTimer")]
+        public void ApprenticeFeedbackSummaryTimer(
+            [TimerTrigger("%FunctionsOptions:ApprenticeFeedbackSummarySchedule%")] TimerInfo timer, 
+            ExecutionContext executionContext, ILogger logger)
         {
-            logger.LogInformation($"GenerateApprenticeFeedbackSummaries Timer trigger function executed at {DateTime.UtcNow}");
+            logger.LogInformation($"Starting ApprenticeFeedbackSummaryTimer");
             var sendOptions = SendLocally.Options;
             _endpoint.Send(new GenerateApprenticeFeedbackSummariesCommand(), sendOptions, executionContext, logger);
         }
