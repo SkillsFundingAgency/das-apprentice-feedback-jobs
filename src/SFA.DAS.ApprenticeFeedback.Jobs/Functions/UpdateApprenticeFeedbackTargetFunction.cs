@@ -1,7 +1,8 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using NServiceBus;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Models;
@@ -10,25 +11,23 @@ using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
-    public class UpdateApprenticeFeedbackTargetTimerTrigger
+    public class UpdateApprenticeFeedbackTargetFunction
     {
         private readonly IApprenticeFeedbackApi _apiClient;
-        private readonly IFunctionEndpoint _endpoint;
         private readonly ApplicationConfiguration _appConfig;
-        private readonly ILogger<UpdateApprenticeFeedbackTargetTimerTrigger> _log;
+        private readonly ILogger<UpdateApprenticeFeedbackTargetFunction> _log;
 
-        public UpdateApprenticeFeedbackTargetTimerTrigger(
+        public UpdateApprenticeFeedbackTargetFunction(
             IApprenticeFeedbackApi apiClient, 
-            IFunctionEndpoint endpoint,
             ApplicationConfiguration appConfig,
-            ILogger<UpdateApprenticeFeedbackTargetTimerTrigger> log)
+            ILogger<UpdateApprenticeFeedbackTargetFunction> log)
         {
             _apiClient = apiClient;
-            _endpoint = endpoint;
             _appConfig = appConfig;
             _log = log;
         }
@@ -91,7 +90,17 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _log.LogInformation($"Starting UpdateApprenticeFeedbackTargetTimer, Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
         }
 
-        public async Task<string> RunOrchestrator(IDurableOrchestrationClient orchestrationClient)
+#if DEBUG
+        [FunctionName(nameof(UpdateApprenticeFeedbackTargetHttp))]
+        public async Task<IActionResult> UpdateApprenticeFeedbackTargetHttp(
+            [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequestMessage request,
+            [DurableClient] IDurableOrchestrationClient orchestrationClient)
+        {
+            return new OkObjectResult($"Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
+        }
+#endif
+
+        private async Task<string> RunOrchestrator(IDurableOrchestrationClient orchestrationClient)
         {
             try
             {

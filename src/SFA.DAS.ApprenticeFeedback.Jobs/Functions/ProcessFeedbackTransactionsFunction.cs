@@ -1,5 +1,7 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
@@ -7,19 +9,20 @@ using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
-    public class ProcessFeedbackTransactionsTimerTrigger
+    public class ProcessFeedbackTransactionsFunction
     {
         private readonly ApplicationConfiguration _appConfig;
-        private readonly ILogger<ProcessFeedbackTransactionsTimerTrigger> _log;
+        private readonly ILogger<ProcessFeedbackTransactionsFunction> _log;
         private readonly IApprenticeFeedbackApi _apprenticeFeedbackApi;
 
-        public ProcessFeedbackTransactionsTimerTrigger(
+        public ProcessFeedbackTransactionsFunction(
             ApplicationConfiguration appConfig, 
-            ILogger<ProcessFeedbackTransactionsTimerTrigger> log,
+            ILogger<ProcessFeedbackTransactionsFunction> log,
             IApprenticeFeedbackApi apprenticeFeedbackApi
             )
         {
@@ -74,7 +77,17 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _log.LogInformation($"Starting ProcessFeedbackTransactionsTimer, Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
         }
 
-        public async Task<string> RunOrchestrator(IDurableOrchestrationClient orchestrationClient)
+#if DEBUG
+        [FunctionName(nameof(ProcessFeedbackTransactionsHttp))]
+        public async Task<IActionResult> ProcessFeedbackTransactionsHttp(
+            [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequestMessage request,
+            [DurableClient] IDurableOrchestrationClient orchestrationClient)
+        {
+            return new OkObjectResult($"Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
+        }
+#endif
+
+        private async Task<string> RunOrchestrator(IDurableOrchestrationClient orchestrationClient)
         {
             try
             {

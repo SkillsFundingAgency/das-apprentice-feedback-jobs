@@ -106,9 +106,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
             services.AddTransient<Http.MessageHandlers.LoggingMessageHandler>();
             services.AddTransient<Http.MessageHandlers.ApimHeadersHandler>();
 
-            services.AddSingleton<ProcessFeedbackTransactionsTimerTrigger>();
-            services.AddSingleton<UpdateApprenticeFeedbackTargetTimerTrigger>();
-
             var url = services
                 .BuildServiceProvider()
                 .GetRequiredService<ApprenticeFeedbackApiConfiguration>()
