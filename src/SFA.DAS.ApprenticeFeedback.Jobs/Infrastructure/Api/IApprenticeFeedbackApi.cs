@@ -28,7 +28,7 @@ namespace SFA.DAS.ApprenticeCommitments.Jobs.Api
         Task TrackFeedbackTransactionClick([Path] long id, [Body] FeedbackTransactionClickRequest apprenticeFeedbackTransactionClick);
 
         [Put("apprenticefeedbacktarget")]
-        Task<ApprenticeFeedbackTargetUpdateResponse> UpdateFeedbackTarget([Body] ApprenticeFeedbackTargetUpdateRequest apprenticeFeedbackTargetToUpdate);
+        Task<UpdateApprenticeFeedbackTargetResponse> UpdateFeedbackTarget([Body] UpdateApprenticeFeedbackTargetRequest apprenticeFeedbackTargetToUpdate);
 
         [Post("feedbacktransaction")]
         Task<GetEmailTransactionsResponse> GenerateEmailTransactions();

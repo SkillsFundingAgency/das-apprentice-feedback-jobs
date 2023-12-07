@@ -9,6 +9,7 @@ using RestEase.HttpClientFactory;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
+using SFA.DAS.ApprenticeFeedback.Jobs.Functions;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
 using SFA.DAS.Http.Configuration;
 using System;
