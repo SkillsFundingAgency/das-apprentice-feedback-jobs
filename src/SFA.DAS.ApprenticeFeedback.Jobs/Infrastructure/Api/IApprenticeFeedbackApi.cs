@@ -31,6 +31,6 @@ namespace SFA.DAS.ApprenticeCommitments.Jobs.Api
         Task<UpdateApprenticeFeedbackTargetResponse> UpdateFeedbackTarget([Body] UpdateApprenticeFeedbackTargetRequest apprenticeFeedbackTargetToUpdate);
 
         [Post("feedbacktransaction")]
-        Task<GetEmailTransactionsResponse> GenerateEmailTransactions();
+        Task<NullResponse> GenerateEmailTransactions();
     }
 }

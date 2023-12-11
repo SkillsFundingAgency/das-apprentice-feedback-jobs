@@ -21,37 +21,37 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
         [FunctionName(nameof(GenerateFeedbackTransactionsTimer))]
         public async Task GenerateFeedbackTransactionsTimer(
-            [TimerTrigger("%FunctionsOptions:GenerateFeedbackTransactionsSchedule%", RunOnStartup = false)] TimerInfo myTimer,
-            ILogger log)
+            [TimerTrigger("%FunctionsOptions:GenerateFeedbackTransactionsSchedule%", RunOnStartup = false)] TimerInfo myTimer)
         {
             try
             {
-                _log.LogInformation("Starting GenerateFeedbackTransactionsTimer");
-                GetEmailTransactionsResponse response = await _api.GenerateEmailTransactions();
-                _log.LogInformation($"GenerateFeedbackTransactionsTimer completed with {response.Count} transactions with created date {response.CreatedOn}");
+                _log.LogInformation("GenerateFeedbackTransactionsTimer has started");
+                await _api.GenerateEmailTransactions();
+                _log.LogInformation($"GenerateFeedbackTransactionsTimer has finished");
                 return;
             }
             catch (Exception e)
             {
-                log.LogError(e, "GenerateFeedbackTransactionsTimer has failed");
+                _log.LogError(e, "GenerateFeedbackTransactionsTimer has failed");
+                throw;
             }
         }
 
 #if DEBUG
         [FunctionName(nameof(GenerateFeedbackTransactionsHttp))]
-        public async Task GenerateFeedbackTransactionsHttp([HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequest request, 
-            ILogger log)
+        public async Task GenerateFeedbackTransactionsHttp([HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequest request)
         {
             try
             {
-                _log.LogInformation("Starting GenerateFeedbackTransactionsHttp");
-                GetEmailTransactionsResponse response = await _api.GenerateEmailTransactions();
-                _log.LogInformation($"GenerateFeedbackTransactionsHttp completed with {response.Count} transactions with created date {response.CreatedOn}");
+                _log.LogInformation("GenerateFeedbackTransactionsHttp has started");
+                await _api.GenerateEmailTransactions();
+                _log.LogInformation($"GenerateFeedbackTransactionsHttp has finished");
                 return;
             }
             catch (Exception e)
             {
-                log.LogError(e, "GenerateFeedbackTransactionsHttp has failed");
+                _log.LogError(e, "GenerateFeedbackTransactionsHttp has failed");
+                throw;
             }
         }
 #endif
