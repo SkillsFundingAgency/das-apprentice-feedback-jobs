@@ -11,14 +11,14 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Handlers.ApprenticeFeedbackHandlers
 {
     public class ApprenticeEmailClickEventHandler : IHandleMessages<ApprenticeEmailClickEvent>
     {
-        private readonly IApprenticeFeedbackApi _api;
+        private readonly IApprenticeFeedbackApi _apprenticeFeedbackApi;
         private readonly ILogger<ApprenticeEmailClickEventHandler> _logger;
 
         public ApprenticeEmailClickEventHandler(
-            IApprenticeFeedbackApi api,
+            IApprenticeFeedbackApi apprenticeFeedbackApi,
             ILogger<ApprenticeEmailClickEventHandler> logger)
         {
-            _api = api;
+            _apprenticeFeedbackApi = apprenticeFeedbackApi;
             _logger = logger;
         }
 
@@ -29,7 +29,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Handlers.ApprenticeFeedbackHandlers
                 var jsonMessage = JsonConvert.SerializeObject(message);
                 _logger.LogDebug($"Handling ApprenticeEmailClickEventHandler {jsonMessage}");
 
-                await _api.TrackFeedbackTransactionClick(message.FeedbackTransactionId, new FeedbackTransactionClickRequest
+                await _apprenticeFeedbackApi.TrackFeedbackTransactionClick(message.FeedbackTransactionId, new FeedbackTransactionClickRequest
                 {
                     FeedbackTransactionId = message.FeedbackTransactionId,
                     ApprenticeFeedbackTargetId = message.ApprenticeFeedbackTargetId,

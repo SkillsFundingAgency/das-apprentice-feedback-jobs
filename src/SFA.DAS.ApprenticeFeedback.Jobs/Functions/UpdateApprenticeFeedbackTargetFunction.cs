@@ -18,16 +18,16 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
     public class UpdateApprenticeFeedbackTargetFunction
     {
-        private readonly IApprenticeFeedbackApi _apiClient;
+        private readonly IApprenticeFeedbackApi _apprenticeFeedbackApi;
         private readonly ApplicationConfiguration _appConfig;
         private readonly ILogger<UpdateApprenticeFeedbackTargetFunction> _log;
 
         public UpdateApprenticeFeedbackTargetFunction(
-            IApprenticeFeedbackApi apiClient, 
+            IApprenticeFeedbackApi apprenticeFeedbackApi, 
             ApplicationConfiguration appConfig,
             ILogger<UpdateApprenticeFeedbackTargetFunction> log)
         {
-            _apiClient = apiClient;
+            _apprenticeFeedbackApi = apprenticeFeedbackApi;
             _appConfig = appConfig;
             _log = log;
         }
@@ -38,7 +38,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         {
             _log.LogInformation($"Activity function is updating apprentice feedback target id '{apprenticeFeedbackTargetToUpdate.ApprenticeFeedbackTargetId}'...");
             
-            var response = await _apiClient.UpdateFeedbackTarget(new UpdateApprenticeFeedbackTargetRequest()
+            var response = await _apprenticeFeedbackApi.UpdateFeedbackTarget(new UpdateApprenticeFeedbackTargetRequest()
             {
                 ApprenticeFeedbackTargetId = apprenticeFeedbackTargetToUpdate.ApprenticeFeedbackTargetId,
                 ApprenticeId = apprenticeFeedbackTargetToUpdate.ApprenticeId,
@@ -104,7 +104,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         {
             try
             {
-                var feedbackTargetsForUpdate = await _apiClient.GetFeedbackTargetsForUpdate(_appConfig.UpdateBatchSize);
+                var feedbackTargetsForUpdate = await _apprenticeFeedbackApi.GetFeedbackTargetsForUpdate(_appConfig.UpdateBatchSize);
 
                 var result = await orchestrationClient.StartNewAsync(
                     nameof(UpdateApprenticeFeedbackTargetOrchestrator),
