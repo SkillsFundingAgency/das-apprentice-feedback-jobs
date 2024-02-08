@@ -2,34 +2,31 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Messages.Commands;
-using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
+using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
     public class ApprenticeFeedbackSummaryFunction
     {
         private readonly ILogger<GenerateFeedbackTransactionsFunction> _log;
-        private readonly IFunctionEndpoint _endpoint;
+        private readonly IApprenticeFeedbackApi _apprenticeFeedbackApi;
 
-        public ApprenticeFeedbackSummaryFunction(ILogger<GenerateFeedbackTransactionsFunction> log, IFunctionEndpoint endpoint)
+        public ApprenticeFeedbackSummaryFunction(ILogger<GenerateFeedbackTransactionsFunction> log, IApprenticeFeedbackApi apprenticeFeedbackApi)
         {
             _log = log;
-            _endpoint = endpoint;
+            _apprenticeFeedbackApi = apprenticeFeedbackApi;
         }
 
         [FunctionName("ApprenticeFeedbackSummaryTimer")]
-        public void ApprenticeFeedbackSummaryTimer(
-            [TimerTrigger("%FunctionsOptions:ApprenticeFeedbackSummarySchedule%")] TimerInfo timer, 
-            ExecutionContext executionContext)
+        public async Task ApprenticeFeedbackSummaryTimer(
+            [TimerTrigger("%FunctionsOptions:ApprenticeFeedbackSummarySchedule%")] TimerInfo timer)
         {
             try
             {
                 _log.LogInformation($"ApprenticeFeedbackSummaryTimer has started");
-                var sendOptions = SendLocally.Options;
-                _endpoint.Send(new GenerateApprenticeFeedbackSummariesCommand(), sendOptions, executionContext);
+                await _apprenticeFeedbackApi.GenerateFeedbackSummaries();
                 _log.LogInformation($"ApprenticeFeedbackSummaryTimer has finished");
             }
             catch(Exception ex)
@@ -41,15 +38,13 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
 #if DEBUG
         [FunctionName("ApprenticeFeedbackSummaryHttp")]
-        public void ApprenticeFeedbackSummaryHttp(
-            [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequest request,
-            ExecutionContext executionContext)
+        public async Task ApprenticeFeedbackSummaryHttp(
+            [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequest request)
         {
             try
             {
                 _log.LogInformation($"ApprenticeFeedbackSummaryHttp has started");
-                var sendOptions = SendLocally.Options;
-                _endpoint.Send(new GenerateApprenticeFeedbackSummariesCommand(), sendOptions, executionContext);
+                await _apprenticeFeedbackApi.GenerateFeedbackSummaries();
                 _log.LogInformation($"ApprenticeFeedbackSummaryHttp has finished");
             }
             catch (Exception ex)

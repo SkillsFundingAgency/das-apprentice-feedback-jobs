@@ -9,14 +9,14 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Handlers.ApprenticeCommitmentsHandlers
 {
     public class ApprenticeshipConfirmationConfirmedEventHandler : IHandleMessages<ApprenticeshipConfirmationConfirmedEvent>
     {
-        private readonly IApprenticeFeedbackApi _api;
+        private readonly IApprenticeFeedbackApi _apprenticeFeedbackApi;
         private readonly ILogger<ApprenticeshipConfirmationConfirmedEventHandler> _logger;
 
         public ApprenticeshipConfirmationConfirmedEventHandler(
-            IApprenticeFeedbackApi api,
+            IApprenticeFeedbackApi apprenticeFeedbackApi,
             ILogger<ApprenticeshipConfirmationConfirmedEventHandler> logger)
         {
-            _api = api;
+            _apprenticeFeedbackApi = apprenticeFeedbackApi;
             _logger = logger;
         }
 
@@ -25,7 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Handlers.ApprenticeCommitmentsHandlers
             _logger.LogInformation("Handling ApprenticeshipConfirmationConfirmedEvent for {ApprenticeshipId} (Commitments Apprentice Id {CommitmentsApprenticeshipId})"
                 , message.ApprenticeshipId, message.CommitmentsApprenticeshipId);
 
-            await _api.CreateFeedbackTarget((ApprenticeConfirmedDetails)message);
+            await _apprenticeFeedbackApi.CreateFeedbackTarget((ApprenticeConfirmedDetails)message);
         }
     }
 }

@@ -1,33 +1,32 @@
-﻿using Moq;
-using NUnit.Framework;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
 using NServiceBus.Testing;
-using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests;
-using SFA.DAS.ApprenticeFeedback.Messages.Events;
+using NUnit.Framework;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs.Handlers.ApprenticeFeedbackHandlers;
+using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests;
 using SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Extensions;
+using SFA.DAS.ApprenticeFeedback.Messages.Events;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
 {
     [TestFixture]
     public class ApprenticeEmailClickEventHandlerTests
     {
-        private Mock<IApprenticeFeedbackApi> _mockApi;
-        private Mock<ILogger<ApprenticeEmailClickEventHandler>> _mockLogger;
+        private Mock<IApprenticeFeedbackApi> _apprenticeFeedbackApi;
+        private Mock<ILogger<ApprenticeEmailClickEventHandler>> _logger;
         private TestableMessageHandlerContext _messageHandlerContext;
         private ApprenticeEmailClickEventHandler _handler;
 
         [SetUp]
         public void SetUp()
         {
-            _mockApi = new Mock<IApprenticeFeedbackApi>();
-            _mockLogger = new Mock<ILogger<ApprenticeEmailClickEventHandler>>();
+            _apprenticeFeedbackApi = new Mock<IApprenticeFeedbackApi>();
+            _logger = new Mock<ILogger<ApprenticeEmailClickEventHandler>>();
             _messageHandlerContext = new TestableMessageHandlerContext();
-            _handler = new ApprenticeEmailClickEventHandler(_mockApi.Object, _mockLogger.Object);
+            _handler = new ApprenticeEmailClickEventHandler(_apprenticeFeedbackApi.Object, _logger.Object);
         }
 
         [Test]
@@ -47,7 +46,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
             await _handler.Handle(message, _messageHandlerContext);
 
             // Assert
-            _mockApi.Verify(api => api.TrackFeedbackTransactionClick(
+            _apprenticeFeedbackApi.Verify(api => api.TrackFeedbackTransactionClick(
                 It.Is<long>(p => p == message.FeedbackTransactionId),
                 It.Is<FeedbackTransactionClickRequest>(p =>
                     p.FeedbackTransactionId == message.FeedbackTransactionId &&
@@ -75,7 +74,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
             await _handler.Handle(message, _messageHandlerContext);
 
             // Assert
-            _mockLogger.VerifyLogging(LogLevel.Debug, Times.Once());
+            _logger.VerifyLogging(LogLevel.Debug, Times.Once());
         }
 
         [Test]
@@ -92,7 +91,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
             };
             var exception = new Exception("Test exception");
 
-            _mockApi.Setup(api => api.TrackFeedbackTransactionClick(
+            _apprenticeFeedbackApi.Setup(api => api.TrackFeedbackTransactionClick(
                 It.IsAny<long>(),
                 It.IsAny<FeedbackTransactionClickRequest>()))
                 .Throws(exception);
@@ -100,7 +99,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
             // Act & Assert
             var ex = Assert.ThrowsAsync<Exception>(async () => await _handler.Handle(message, _messageHandlerContext));
             Assert.That(ex.Message, Is.EqualTo("Test exception"));
-            _mockLogger.VerifyLogging(LogLevel.Error, Times.Once());
+            _logger.VerifyLogging(LogLevel.Error, Times.Once());
         }
     }
 }

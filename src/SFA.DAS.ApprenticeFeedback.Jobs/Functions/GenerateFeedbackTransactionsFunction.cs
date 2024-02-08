@@ -11,11 +11,11 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
     public class GenerateFeedbackTransactionsFunction
     {
         private readonly ILogger<GenerateFeedbackTransactionsFunction> _log;
-        private readonly IApprenticeFeedbackApi _api;
+        private readonly IApprenticeFeedbackApi _apprenticeFeedbackApi;
 
-        public GenerateFeedbackTransactionsFunction(ILogger<GenerateFeedbackTransactionsFunction> log, IApprenticeFeedbackApi api)
+        public GenerateFeedbackTransactionsFunction(ILogger<GenerateFeedbackTransactionsFunction> log, IApprenticeFeedbackApi apprenticeFeedbackApi)
         {
-            _api = api;
+            _apprenticeFeedbackApi = apprenticeFeedbackApi;
             _log = log;
         }
 
@@ -26,7 +26,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             try
             {
                 _log.LogInformation("GenerateFeedbackTransactionsTimer has started");
-                await _api.GenerateEmailTransactions();
+                await _apprenticeFeedbackApi.GenerateEmailTransactions();
                 _log.LogInformation($"GenerateFeedbackTransactionsTimer has finished");
                 return;
             }
@@ -44,7 +44,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             try
             {
                 _log.LogInformation("GenerateFeedbackTransactionsHttp has started");
-                await _api.GenerateEmailTransactions();
+                await _apprenticeFeedbackApi.GenerateEmailTransactions();
                 _log.LogInformation($"GenerateFeedbackTransactionsHttp has finished");
                 return;
             }

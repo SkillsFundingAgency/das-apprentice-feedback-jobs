@@ -13,8 +13,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
 {
     public class ApprenticeshipConfirmationConfirmedEventHandlerTests
     {
-        private Mock<IApprenticeFeedbackApi> _mockApi;
-        private Mock<ILogger<ApprenticeshipConfirmationConfirmedEventHandler>> _mockLogger;
+        private Mock<IApprenticeFeedbackApi> _apprenticeFeedbackApi;
+        private Mock<ILogger<ApprenticeshipConfirmationConfirmedEventHandler>> _logger;
         private TestableMessageHandlerContext _messageHandlerContext;
         private ApprenticeshipConfirmationConfirmedEventHandler _handler;
         private readonly Fixture _fixture = new Fixture();
@@ -22,10 +22,10 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
         [SetUp]
         public void SetUp()
         {
-            _mockApi = new Mock<IApprenticeFeedbackApi>();
-            _mockLogger = new Mock<ILogger<ApprenticeshipConfirmationConfirmedEventHandler>>();
+            _apprenticeFeedbackApi = new Mock<IApprenticeFeedbackApi>();
+            _logger = new Mock<ILogger<ApprenticeshipConfirmationConfirmedEventHandler>>();
             _messageHandlerContext = new TestableMessageHandlerContext();
-            _handler = new ApprenticeshipConfirmationConfirmedEventHandler(_mockApi.Object, _mockLogger.Object);
+            _handler = new ApprenticeshipConfirmationConfirmedEventHandler(_apprenticeFeedbackApi.Object, _logger.Object);
         }
 
         [Test, AutoMoqData]
@@ -36,7 +36,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
 
             await _handler.Handle(message, _messageHandlerContext);
 
-            _mockApi.Verify(m => m.CreateFeedbackTarget(It.Is<ApprenticeConfirmedDetails>(n =>
+            _apprenticeFeedbackApi.Verify(m => m.CreateFeedbackTarget(It.Is<ApprenticeConfirmedDetails>(n =>
                 n.ApprenticeId == message.ApprenticeId &&
                 n.ApprenticeshipId == message.ApprenticeshipId &&
                 n.CommitmentsApprenticeshipId == message.CommitmentsApprenticeshipId &&
