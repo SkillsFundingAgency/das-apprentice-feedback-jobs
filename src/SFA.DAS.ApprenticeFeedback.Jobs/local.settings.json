@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsServiceBus": "Disabled",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "ConfigNames": "SFA.DAS.ApprenticeFeedback.Jobs",
+    "EnvironmentName": "LOCAL",
+    "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true"
+  }
+}
