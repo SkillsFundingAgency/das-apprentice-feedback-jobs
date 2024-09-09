@@ -1,57 +1,41 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
+using Microsoft.Azure.Functions.Worker;
+using ExecutionContext = System.Threading.ExecutionContext;
+using Microsoft.DurableTask;
+using Microsoft.DurableTask.Client;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
-    public class ProcessFeedbackTransactionsFunction
+    public class ProcessFeedbackTransactionsFunction(
+        ApplicationConfiguration appConfig,
+        ILogger<ProcessFeedbackTransactionsFunction> log,
+        IApprenticeFeedbackApi apprenticeFeedbackApi)
     {
-        private readonly ApplicationConfiguration _appConfig;
-        private readonly ILogger<ProcessFeedbackTransactionsFunction> _log;
-        private readonly IApprenticeFeedbackApi _apprenticeFeedbackApi;
-
-        public ProcessFeedbackTransactionsFunction(
-            ApplicationConfiguration appConfig, 
-            ILogger<ProcessFeedbackTransactionsFunction> log,
-            IApprenticeFeedbackApi apprenticeFeedbackApi
-            )
-        {
-            _appConfig = appConfig;
-            _log = log;
-            _apprenticeFeedbackApi = apprenticeFeedbackApi;
-        }
-
-        [FunctionName(nameof(ProcessFeedbackTransactionsActivity))]
+        [Function(nameof(ProcessFeedbackTransactionsActivity))]
         public async Task<SendApprenticeFeedbackEmailResponse> ProcessFeedbackTransactionsActivity(
             [ActivityTrigger] FeedbackTransaction emailTarget)
         {
-            _log.LogInformation($"Activity function is performing email send activity for apprentice feedback transaction Id {emailTarget.FeedbackTransactionId}");
+            log.LogInformation($"Activity function is performing email send activity for apprentice feedback transaction Id {emailTarget.FeedbackTransactionId}");
 
-            var response = await _apprenticeFeedbackApi.ProcessEmailTransaction(emailTarget.FeedbackTransactionId, emailTarget);
+            var response = await apprenticeFeedbackApi.ProcessEmailTransaction(emailTarget.FeedbackTransactionId, emailTarget);
 
-            _log.LogInformation($"Activity function response: apprentice feedback transaction Id {response.FeedbackTransactionId} email status = {response.EmailStatus}");
+            log.LogInformation($"Activity function response: apprentice feedback transaction Id {response.FeedbackTransactionId} email status = {response.EmailStatus}");
 
             return response;
         }
 
-        [FunctionName(nameof(ProcessFeedbackTransactionsOrchestrator))]
+        [Function(nameof(ProcessFeedbackTransactionsOrchestrator))]
         public async Task<SendApprenticeFeedbackEmailResponse[]> ProcessFeedbackTransactionsOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
+            [OrchestrationTrigger] TaskOrchestrationContext orchestrationContext,
             ExecutionContext executionContext)
         {
             if (orchestrationContext.IsReplaying)
             {
-                _log.LogInformation($"Orchestrator function is replaying");
+                log.LogInformation($"Orchestrator function is replaying");
             }
 
             var emailTargets = orchestrationContext.GetInput<IEnumerable<FeedbackTransaction>>();
@@ -64,36 +48,36 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
             var responses = await Task.WhenAll(tasks);
 
-            _log.LogInformation($"Orchestrator function finished");
+            log.LogInformation($"Orchestrator function finished");
 
             return responses;
         }
 
-        [FunctionName(nameof(ProcessFeedbackTransactionsTimer))]
+        [Function(nameof(ProcessFeedbackTransactionsTimer))]
         public async Task ProcessFeedbackTransactionsTimer(
             [TimerTrigger("%FunctionsOptions:ProcessFeedbackTransactionsSchedule%")] TimerInfo myTimer,
-            [DurableClient] IDurableOrchestrationClient orchestrationClient)
+            [DurableClient] DurableTaskClient orchestrationClient)
         {
-            _log.LogInformation($"Starting ProcessFeedbackTransactionsTimer, Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
+            log.LogInformation($"Starting ProcessFeedbackTransactionsTimer, Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
         }
 
 #if DEBUG
-        [FunctionName(nameof(ProcessFeedbackTransactionsHttp))]
+        [Function(nameof(ProcessFeedbackTransactionsHttp))]
         public async Task<IActionResult> ProcessFeedbackTransactionsHttp(
             [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequestMessage request,
-            [DurableClient] IDurableOrchestrationClient orchestrationClient)
+            [DurableClient] DurableTaskClient orchestrationClient)
         {
             return new OkObjectResult($"Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
         }
 #endif
 
-        private async Task<string> RunOrchestrator(IDurableOrchestrationClient orchestrationClient)
+        private async Task<string> RunOrchestrator(DurableTaskClient orchestrationClient)
         {
             try
             {
-                var emailTargets = await _apprenticeFeedbackApi.GetFeedbackTransactionsToEmail(_appConfig.EmailBatchSize);
+                var emailTargets = await apprenticeFeedbackApi.GetFeedbackTransactionsToEmail(appConfig.EmailBatchSize);
 
-                var result = await orchestrationClient.StartNewAsync(
+                var result = await orchestrationClient.ScheduleNewOrchestrationInstanceAsync(
                     nameof(ProcessFeedbackTransactionsOrchestrator),
                     emailTargets
                 );
@@ -102,7 +86,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             }
             catch (Exception ex)
             {
-                _log.LogCritical(ex, "Orchestrator failed.");
+                log.LogCritical(ex, "Orchestrator failed.");
                 throw;
             }
         }

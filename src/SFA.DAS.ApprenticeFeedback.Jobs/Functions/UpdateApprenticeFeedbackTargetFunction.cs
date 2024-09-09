@@ -1,18 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask;
+using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Models;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
@@ -32,7 +27,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _log = log;
         }
 
-        [FunctionName(nameof(UpdateApprenticeFeedbackTargetActivity))]
+        [Function(nameof(UpdateApprenticeFeedbackTargetActivity))]
         public async Task<UpdateApprenticeFeedbackTargetResponse> UpdateApprenticeFeedbackTargetActivity(
             [ActivityTrigger] FeedbackTargetForUpdate apprenticeFeedbackTargetToUpdate)
         {
@@ -50,17 +45,17 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             return response;
         }
 
-        [FunctionName(nameof(UpdateApprenticeFeedbackTargetOrchestrator))]
+        [Function(nameof(UpdateApprenticeFeedbackTargetOrchestrator))]
         public async Task<UpdateApprenticeFeedbackTargetResponse[]> UpdateApprenticeFeedbackTargetOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
-            ExecutionContext executionContext)
+            [OrchestrationTrigger] TaskOrchestrationContext orchestrationContext,
+            List<FeedbackTargetForUpdate> aftsForUpdate)
         {
-            if (orchestrationContext.IsReplaying)
-            {
-                _log.LogInformation($"Orchestrator function is replaying");
-            }
+            //if (orchestrationContext.IsReplaying)
+            //{
+            //    _log.LogInformation($"Orchestrator function is replaying");
+            //}
 
-            var aftsForUpdate = orchestrationContext.GetInput<List<FeedbackTargetForUpdate>>();
+            //var aftsForUpdate = orchestrationContext.GetInput<List<FeedbackTargetForUpdate>>();
 
             _log.LogInformation($"Orchestrator function has selected the following {aftsForUpdate.Count} apprentice feedback target(s) to update:");
             for (int i = 0; i < aftsForUpdate.Count; i++)
@@ -82,31 +77,31 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             return responses;
         }
 
-        [FunctionName(nameof(UpdateApprenticeFeedbackTargetTimer))]
+        [Function(nameof(UpdateApprenticeFeedbackTargetTimer))]
         public async Task UpdateApprenticeFeedbackTargetTimer(
             [TimerTrigger("%FunctionsOptions:UpdateApprenticeFeedbackTargetSchedule%")] TimerInfo myTimer,
-            [DurableClient] IDurableOrchestrationClient orchestrationClient)
+            [DurableClient] DurableTaskClient orchestrationClient)
         {
             _log.LogInformation($"Starting UpdateApprenticeFeedbackTargetTimer, Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
         }
 
 #if DEBUG
-        [FunctionName(nameof(UpdateApprenticeFeedbackTargetHttp))]
+        [Function(nameof(UpdateApprenticeFeedbackTargetHttp))]
         public async Task<IActionResult> UpdateApprenticeFeedbackTargetHttp(
             [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequestMessage request,
-            [DurableClient] IDurableOrchestrationClient orchestrationClient)
+            [DurableClient] DurableTaskClient orchestrationClient)
         {
             return new OkObjectResult($"Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
         }
 #endif
 
-        private async Task<string> RunOrchestrator(IDurableOrchestrationClient orchestrationClient)
+        private async Task<string> RunOrchestrator(DurableTaskClient orchestrationClient)
         {
             try
             {
                 var feedbackTargetsForUpdate = await _apprenticeFeedbackApi.GetFeedbackTargetsForUpdate(_appConfig.UpdateBatchSize);
 
-                var result = await orchestrationClient.StartNewAsync(
+                var result = await orchestrationClient.ScheduleNewOrchestrationInstanceAsync(
                     nameof(UpdateApprenticeFeedbackTargetOrchestrator),
                     feedbackTargetsForUpdate
                 );
