@@ -240,6 +240,10 @@
                                     "value": "[parameters('SharedServiceBusFqdn')]"
                                 },
                                 {
+                                    "name": "AzureWebJobsServiceBus",
+                                    "value": "[parameters('serviceBusConnectionString')]"
+                                },
+                                {
                                     "name": "ConfigNames",
                                     "value": "[variables('configNames')]"
                                 },
