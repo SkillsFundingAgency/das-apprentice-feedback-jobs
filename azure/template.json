@@ -20,6 +20,9 @@
         "SharedServiceBusFqdn": {
             "type": "string"
         },
+        "serviceBusConnectionString": {
+            "type": "string"
+        },
         "loggingRedisConnectionString": {
             "type": "securestring"
         },
