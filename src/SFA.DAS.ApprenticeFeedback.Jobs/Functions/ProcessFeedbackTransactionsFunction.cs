@@ -30,8 +30,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
         [Function(nameof(ProcessFeedbackTransactionsOrchestrator))]
         public async Task<SendApprenticeFeedbackEmailResponse[]> ProcessFeedbackTransactionsOrchestrator(
-            [OrchestrationTrigger] TaskOrchestrationContext orchestrationContext,
-            ExecutionContext executionContext)
+            [OrchestrationTrigger] TaskOrchestrationContext orchestrationContext)
         {
             if (orchestrationContext.IsReplaying)
             {
