@@ -10,8 +10,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         IApprenticeFeedbackApi apprenticeFeedbackApi)
     {
         [Function(nameof(ApprenticeFeedbackSummaryTimer))]
-        public async Task ApprenticeFeedbackSummaryTimer(
-            [TimerTrigger("%FunctionsOptions:ApprenticeFeedbackSummarySchedule%")] TimerInfo timer)
+        public async Task ApprenticeFeedbackSummaryTimer([TimerTrigger("* */5 * * * *")] TimerInfo timer)
         {
             try
             {
@@ -28,8 +27,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
 #if DEBUG
         [Function(nameof(ApprenticeFeedbackSummaryHttp))]
-        public async Task ApprenticeFeedbackSummaryHttp(
-            [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequest request)
+        public async Task ApprenticeFeedbackSummaryHttp([HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequest request)
         {
             try
             {

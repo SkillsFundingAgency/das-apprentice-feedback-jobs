@@ -1,7 +1,6 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Jobs.Extensions;
 
@@ -20,8 +19,13 @@ var host = new HostBuilder()
         services.AddLogging(options =>
         {
             options.AddApplicationInsights();
-            options.AddFilter<ApplicationInsightsLoggerProvider>("SFA.DAS", LogLevel.Information);
-            options.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
+            //options.AddFilter<ApplicationInsightsLoggerProvider>("SFA.DAS", LogLevel.Information);
+            //options.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
+
+#if DEBUG
+            options.AddConsole();
+            options.AddDebug();
+#endif
 
         });
     })

@@ -14,7 +14,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
         {
             //CreateTopicsAndQueues.CreateQueuesAndTopics(builder.GetContext().Configuration, EndpointName, logger: logger)
             //.GetAwaiter().GetResult();
-
+           
             hostBuilder.UseNServiceBus((configuration, endpointConfiguration) =>
             {
                 endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureQueueNameShortener.Shorten;
