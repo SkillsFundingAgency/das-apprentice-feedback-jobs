@@ -10,7 +10,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         IApprenticeFeedbackApi apprenticeFeedbackApi)
     {
         [Function(nameof(ApprenticeFeedbackSummaryTimer))]
-        public async Task ApprenticeFeedbackSummaryTimer([TimerTrigger("* */5 * * * *")] TimerInfo timer)
+        public async Task ApprenticeFeedbackSummaryTimer([TimerTrigger("%ApprenticeFeedbackSummarySchedule%")] TimerInfo timer)
         {
             try
             {

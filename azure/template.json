@@ -81,7 +81,11 @@
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
-        "configNames": "SFA.DAS.ApprenticeFeedback.Jobs"
+        "configNames": "SFA.DAS.ApprenticeFeedback.Jobs",
+        "apprenticeFeedbackSummarySchedule": "*/5 * * * * *",
+        "generateFeedbackTransactionsSchedule": "*/30 * * * *",
+        "processFeedbackTransactionsSchedule": "*/30 * * * *",
+        "updateApprenticeFeedbackTargetSchedule": "*/30 * * * *"
     },
     "resources": [
         {
@@ -281,6 +285,22 @@
                                 {
                                     "name": "WEBSITE_RUN_FROM_PACKAGE",
                                     "value": "1"
+                                },
+                                {
+                                  "name": "apprenticeFeedbackSummarySchedule",
+                                  "value": "[variables('ApprenticeFeedbackSummarySchedule')]"
+                                },
+                                {
+                                  "name": "generateFeedbackTransactionsSchedule",
+                                  "value": "[variables('GenerateFeedbackTransactionsSchedule')]"
+                                },
+                                {
+                                  "name": "processFeedbackTransactionsSchedule",
+                                  "value": "[variables('ProcessFeedbackTransactionsSchedule')]"
+                                },
+                                {
+                                  "name": "updateApprenticeFeedbackTargetSchedule",
+                                  "value": "[variables('UpdateApprenticeFeedbackTargetSchedule')]"
                                 }
                             ]
                         }

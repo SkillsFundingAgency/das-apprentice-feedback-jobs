@@ -79,7 +79,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
         [Function(nameof(UpdateApprenticeFeedbackTargetTimer))]
         public async Task UpdateApprenticeFeedbackTargetTimer(
-            [TimerTrigger("%FunctionsOptions:UpdateApprenticeFeedbackTargetSchedule%")] TimerInfo myTimer,
+            [TimerTrigger("%UpdateApprenticeFeedbackTargetSchedule%")] TimerInfo myTimer,
             [DurableClient] DurableTaskClient orchestrationClient)
         {
             _log.LogInformation($"Starting UpdateApprenticeFeedbackTargetTimer, Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");

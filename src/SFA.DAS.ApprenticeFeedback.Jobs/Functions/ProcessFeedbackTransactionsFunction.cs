@@ -55,7 +55,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
         [Function(nameof(ProcessFeedbackTransactionsTimer))]
         public async Task ProcessFeedbackTransactionsTimer(
-            [TimerTrigger("%FunctionsOptions:ProcessFeedbackTransactionsSchedule%")] TimerInfo myTimer,
+            [TimerTrigger("%ProcessFeedbackTransactionsSchedule%")] TimerInfo myTimer,
             [DurableClient] DurableTaskClient orchestrationClient)
         {
             log.LogInformation($"Starting ProcessFeedbackTransactionsTimer, Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");

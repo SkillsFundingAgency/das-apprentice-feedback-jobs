@@ -7,6 +7,10 @@
     "ConfigNames": "SFA.DAS.ApprenticeFeedback.Jobs",
     "EnvironmentName": "LOCAL",
     "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "ApprenticeFeedbackSummarySchedule": "*/5 * * * * *",
+    "GenerateFeedbackTransactionsSchedule": "*/30 * * * *",
+    "ProcessFeedbackTransactionsSchedule": "*/30 * * * *",
+    "UpdateApprenticeFeedbackTargetSchedule": "*/30 * * * *"
   }
 }
