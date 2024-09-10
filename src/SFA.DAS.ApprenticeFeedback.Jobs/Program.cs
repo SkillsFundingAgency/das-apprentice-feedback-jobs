@@ -22,12 +22,6 @@ var host = new HostBuilder()
             options.AddApplicationInsights();
             options.AddFilter<ApplicationInsightsLoggerProvider>("SFA.DAS", LogLevel.Information);
             options.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
-
-#if DEBUG
-            options.AddConsole();
-            options.AddDebug();
-#endif
-
         });
     })
     .Build();

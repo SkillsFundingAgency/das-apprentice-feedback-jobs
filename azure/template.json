@@ -82,10 +82,10 @@
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
         "configNames": "SFA.DAS.ApprenticeFeedback.Jobs",
-        "apprenticeFeedbackSummarySchedule": "*/5 * * * * *",
-        "generateFeedbackTransactionsSchedule": "*/30 * * * *",
-        "processFeedbackTransactionsSchedule": "*/30 * * * *",
-        "updateApprenticeFeedbackTargetSchedule": "*/30 * * * *"
+        "apprenticeFeedbackSummarySchedule": "* */5 * * * * ",
+        "generateFeedbackTransactionsSchedule": "* */30 * * * *",
+        "processFeedbackTransactionsSchedule": "* */30 * * * *",
+        "updateApprenticeFeedbackTargetSchedule": "* */30 * * * *"
     },
     "resources": [
         {
