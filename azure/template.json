@@ -307,6 +307,9 @@
                     },
                     "ipSecurityRestrictions": {
                         "value": "[parameters('workerAccessRestrictions')]"
+                    },
+                    "netFrameworkVersion": {
+                        "value": "v8.0"
                     }
                 }
             },
