@@ -70,6 +70,9 @@
         },
         "sharedServiceBusName": {
             "type": "string"
+        },
+        "sharedStorageAccountName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -78,6 +81,7 @@
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
+        "storageContainerNames": ["apprentice-feedback-template-variants"],
         "configNames": "SFA.DAS.ApprenticeFeedback.Jobs"
     },
     "resources": [
@@ -310,6 +314,31 @@
                         "value": "[parameters('sharedServiceBusName')]"
                     }
                 }
+            }
+        },
+        {
+            "apiVersion": "2021-04-01",
+            "name": "[concat('storage-account-container-', variables('storageContainerNames')[copyIndex()])]",
+            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'storage-container.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "storageAccountName": {
+                        "value": "[parameters('sharedStorageAccountName')]"
+                    },
+                    "containerName": {
+                        "value": "[variables('storageContainerNames')[copyIndex()]]"
+                    }
+                }
+            },
+            "copy": {
+                "count": "[length(variables('storageContainerNames'))]",
+                "name": "storageContainerCopy"
             }
         }
     ],
