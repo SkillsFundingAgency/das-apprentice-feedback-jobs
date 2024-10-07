@@ -10,7 +10,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure
             services.AddTransient<IFeedbackTargetVariantBatchProcessor, FeedbackTargetVariantBatchProcessor>();
             services.AddTransient<IFeedbackTargetVariantBlobProcessor, FeedbackTargetVariantBlobProcessor>();
             services.AddTransient<IFeedbackTargetVariantBlobReader, FeedbackTargetVariantBlobReader>();
-            services.AddTransient<FeedbackTargetVariantBlobMover, FeedbackTargetVariantBlobMover>();
+            services.AddTransient<IFeedbackTargetVariantBlobMover, FeedbackTargetVariantBlobMover>();
         }
 
     }

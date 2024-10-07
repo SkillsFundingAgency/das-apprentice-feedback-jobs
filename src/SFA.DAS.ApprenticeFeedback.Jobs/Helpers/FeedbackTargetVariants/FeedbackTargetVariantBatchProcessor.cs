@@ -45,7 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants
                 };
 
                 await _apprenticeFeedbackApi.ProcessFeedbackTargetVariants(batchRequest);
-                _logger.LogInformation($"Processed batch with ClearStaging: {clearStaging}, MergeStaging: {isLastBatch}");
+                _logger.LogInformation($"Processed batch with ItemCount : {batchRequest.FeedbackTargetVariants.Count}, ClearStaging: {clearStaging}, MergeStaging: {isLastBatch}");
             }
         }
     }

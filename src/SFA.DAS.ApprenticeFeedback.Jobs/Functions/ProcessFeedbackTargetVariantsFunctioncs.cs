@@ -1,5 +1,4 @@
-﻿using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System;
@@ -22,7 +21,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             _blobProcessor = blobProcessor;
         }
 
-        [Function(nameof(ProcessFeedbackTargetVariantsTimer))]
+        [FunctionName(nameof(ProcessFeedbackTargetVariantsTimer))]
         public async Task ProcessFeedbackTargetVariantsTimer([TimerTrigger("%FunctionsOptions:ProcessFeedbackTargetVariantsSchedule%")] TimerInfo timer, ILogger logger)
         {
             _logger.LogInformation($"ProcessFeedbackTargetVariantsFunction executed at: {DateTime.Now}");
@@ -31,9 +30,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         }
 
 #if DEBUG
-        [Function(nameof(ProcessFeedbackTargetVariantsHttp))]
+        [FunctionName(nameof(ProcessFeedbackTargetVariantsHttp))]
         public async Task ProcessFeedbackTargetVariantsHttp(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req)
         {
             _logger.LogInformation($"ProcessFeedbackTargetVariantsHttp executed at: {DateTime.Now}");
 
