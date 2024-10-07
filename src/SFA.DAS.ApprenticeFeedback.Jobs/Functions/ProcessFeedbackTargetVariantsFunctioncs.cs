@@ -1,98 +1,66 @@
-﻿using Azure.Storage.Blobs;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using NLog.Fluent;
-using SFA.DAS.ApprenticeCommitments.Jobs.Api;
-using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
-using SFA.DAS.ApprenticeFeedback.Jobs.Functions;
-using SFA.DAS.ApprenticeFeedback.Jobs.Helpers;
-using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
 using System.Threading.Tasks;
+using System;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants;
 
-public class ProcessFeedbackTargetVariantsFunction
+namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
-    private readonly ILogger<ProcessFeedbackTargetVariantsFunction> _log;
-    private readonly IApprenticeFeedbackApi _apprenticeFeedbackApi;
-    private readonly IBlobStorageHelper _blobStorageHelper;
-    private readonly ApprenticeFeedbackVariantConfiguration _config;
-
-    public ProcessFeedbackTargetVariantsFunction(
-        ILogger<ProcessFeedbackTargetVariantsFunction> log, 
-        IApprenticeFeedbackApi apprenticeFeedbackApi, 
-        IBlobStorageHelper blobStorageHelper,
-        ApprenticeFeedbackVariantConfiguration config)
+    public class ProcessFeedbackTargetVariantsFunction
     {
-        _log = log;
-        _apprenticeFeedbackApi = apprenticeFeedbackApi;
-        _blobStorageHelper = blobStorageHelper;
-        _config = config;
-    }
+        private readonly ILogger<ProcessFeedbackTargetVariantsFunction> _logger;
+        private readonly IFeedbackTargetVariantBlobProcessor _blobProcessor;
 
-    [FunctionName(nameof(ProcessFeedbackTargetVariantsFunction))]
-    public async Task Run(
-        [BlobTrigger("apprentice-feedback-template-variants/new/{name}", Connection = "AzureWebJobsStorage")] Stream blobStream,
-        string name)
-    {
-        var processVariantsRequest = await ExtractVariantsFromFile(blobStream, name);
-
-        if(processVariantsRequest.FeedbackVariants != null && processVariantsRequest.FeedbackVariants.Any())
+        public ProcessFeedbackTargetVariantsFunction(
+            ILogger<ProcessFeedbackTargetVariantsFunction> log,
+            IFeedbackTargetVariantBlobProcessor blobProcessor)
         {
-            await _apprenticeFeedbackApi.ProcessFeedbackTargetVariants(processVariantsRequest); 
-        }
-        
-        await _blobStorageHelper.MoveBlobAsync(_config.BlobContainerName, _config.IncomingFolder, _config.ArchiveFolder);
-    }
-
-    private async Task<PostProcessFeedbackVariantsRequest> ExtractVariantsFromFile(Stream blobStream, string fileName)
-    {
-        var variantList = new List<FeedbackVariant>();
-
-        using var reader = new StreamReader(blobStream);
-        var content = await reader.ReadToEndAsync();
-
-        _log.LogInformation($"Processing Feedback Target Variants file : {fileName}");
-
-        var lines = content.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-
-        for (int i = 1; i < lines.Length; i++)
-        {
-            var line = lines[i];
-
-            var columns = line.Split(',');
-
-            if (columns.Length == 2)
-            {
-                if (long.TryParse(columns[0].Trim(), out long parsedId))
-                {
-                    if (string.IsNullOrEmpty(columns[1].Trim()))
-                    {
-                        _log.LogWarning($"Empty Variant in row: {line}");
-                    }
-                    else
-                    {
-                        variantList.Add(new FeedbackVariant(parsedId, columns[1].Trim()));
-                    }
-                }
-                else
-                {
-                    _log.LogWarning($"Invalid ApprenticeshipId in row: {line}");
-                }
-            }
-            else
-            {
-                _log.LogWarning($"Invalid row in file: {line}");
-            }
+            _logger = log;
+            _blobProcessor = blobProcessor;
         }
 
-        return new PostProcessFeedbackVariantsRequest
+        [Function(nameof(ProcessFeedbackTargetVariantsTimer))]
+        public async Task ProcessFeedbackTargetVariantsTimer([TimerTrigger("%FunctionsOptions:ProcessFeedbackTargetVariantsSchedule%")] TimerInfo timer, ILogger logger)
         {
-            FeedbackVariants = variantList
-        };
+            _logger.LogInformation($"ProcessFeedbackTargetVariantsFunction executed at: {DateTime.Now}");
+            await Run(nameof(ProcessFeedbackTargetVariantsTimer));
+            _logger.LogInformation($"ProcessFeedbackTargetVariantsFunction completed at: {DateTime.Now}");
+        }
+
+#if DEBUG
+        [Function(nameof(ProcessFeedbackTargetVariantsHttp))]
+        public async Task ProcessFeedbackTargetVariantsHttp(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req)
+        {
+            _logger.LogInformation($"ProcessFeedbackTargetVariantsHttp executed at: {DateTime.Now}");
+
+            await Run(nameof(ProcessFeedbackTargetVariantsHttp));
+
+            _logger.LogInformation($"ProcessFeedbackTargetVariantsHttp completed at: {DateTime.Now}");
+
+            // Return a success response
+            req.HttpContext.Response.StatusCode = StatusCodes.Status200OK;
+            await req.HttpContext.Response.WriteAsync("Processing completed successfully.");
+        }
+#endif
+
+        private async Task Run(string functionName)
+        {
+            try
+            {
+                _logger.LogInformation("{FunctionName} has started", functionName);
+                await _blobProcessor.ProcessBlobs();
+                _logger.LogInformation("{FunctionName} has finished", functionName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{FunctionName} has failed", functionName);
+                throw;
+            }
+        }
     }
+
 }
-
