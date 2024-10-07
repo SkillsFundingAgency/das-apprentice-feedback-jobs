@@ -135,8 +135,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Helpers
             await _processor.ProcessBatch(feedbackVariants, batchSize);
 
             // Assert
-            _loggerMock.VerifyLoggingMessage(LogLevel.Information, Times.Once(), "Processed batch with ClearStaging: True, MergeStaging: False");
-            _loggerMock.VerifyLoggingMessage(LogLevel.Information, Times.Once(), "Processed batch with ClearStaging: False, MergeStaging: True");
+            _loggerMock.VerifyLoggingMessage(LogLevel.Information, Times.Once(), "Processed batch with ItemCount : 2, ClearStaging: True, MergeStaging: False");
+            _loggerMock.VerifyLoggingMessage(LogLevel.Information, Times.Once(), "Processed batch with ItemCount : 1, ClearStaging: False, MergeStaging: True");
         }
     }
 }
