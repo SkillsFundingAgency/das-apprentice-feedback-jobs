@@ -42,7 +42,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Helpers
             {
                 BlobContainerName = "test-container",
                 ArchiveFolder = "archive",
-                VariantBatchSize = 10
+                FeedbackTargetVariantBatchSize = 10
             };
             _mockConfig.Setup(c => c.Value).Returns(_config);
 
@@ -91,7 +91,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Helpers
 
             // Assert
             _mockBlobReader.Verify(r => r.ReadVariantsFromBlob(blobClient.Object), Times.Once);
-            _mockBatchProcessor.Verify(b => b.ProcessBatch(feedbackVariants, _config.VariantBatchSize), Times.Once);
+            _mockBatchProcessor.Verify(b => b.ProcessBatch(feedbackVariants, _config.FeedbackTargetVariantBatchSize), Times.Once);
             _mockBlobMover.Verify(m => m.MoveBlob(_config.BlobContainerName, "blob1.csv", _config.ArchiveFolder), Times.Once);
         }
 
