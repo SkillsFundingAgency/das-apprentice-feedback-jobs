@@ -64,8 +64,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants
                 throw new Exception($"Failed to move blob. Copy status: {properties.CopyStatus}");
             }
         }
-
-
     }
 
 }

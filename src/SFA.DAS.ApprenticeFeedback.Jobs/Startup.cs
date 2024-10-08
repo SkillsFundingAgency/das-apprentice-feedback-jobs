@@ -25,6 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
     public class Startup : FunctionsStartup
     {
         internal const string EndpointName = "SFA.DAS.ApprenticeFeedback";
+
         public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
         {
             builder.ConfigureConfiguration();

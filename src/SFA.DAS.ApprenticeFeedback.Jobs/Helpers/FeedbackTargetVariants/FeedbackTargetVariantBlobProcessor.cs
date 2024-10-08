@@ -59,7 +59,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants
 
                 if (variants.Any())
                 {
-                    await _batchProcessor.ProcessBatch(variants, _config.FeedbackTargetVariantBatchSize);
+                    await _batchProcessor.ProcessBatch(variants.ToList(), _config.FeedbackTargetVariantBatchSize);
                 }
 
                 await _blobMover.MoveBlob(_config.BlobContainerName, blobName, _config.ArchiveFolder);

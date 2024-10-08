@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
+using SFA.DAS.ApprenticeFeedback.Jobs.Extensions;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants
 {
     public interface IFeedbackTargetVariantBatchProcessor
     {
-        Task ProcessBatch(IEnumerable<FeedbackVariant> variants, int batchSize);
+        Task ProcessBatch(List<FeedbackVariant> variants, int batchSize);
     }
     public class FeedbackTargetVariantBatchProcessor : IFeedbackTargetVariantBatchProcessor
     {
@@ -24,18 +25,17 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants
             _apprenticeFeedbackApi = apprenticeFeedbackApi;
         }
 
-        public async Task ProcessBatch(IEnumerable<FeedbackVariant> feedbackVariants, int batchSize)
+        public async Task ProcessBatch(List<FeedbackVariant> feedbackVariants, int batchSize)
         {
-            var variantsList = feedbackVariants.ToList();
+            var feedbackVariantBatches = feedbackVariants.ChunkBy(batchSize);
             bool isFirstBatch = true;
 
-            for (int i = 0; i < variantsList.Count; i += batchSize)
+            foreach (var batch in feedbackVariantBatches)
             {
-                var batch = variantsList.Skip(i).Take(batchSize).ToList();
                 bool clearStaging = isFirstBatch;
                 isFirstBatch = false;
 
-                bool isLastBatch = i + batchSize >= variantsList.Count;
+                bool isLastBatch = batch == feedbackVariantBatches.Last();
 
                 var batchRequest = new PostProcessFeedbackVariantsRequest
                 {
@@ -45,6 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants
                 };
 
                 await _apprenticeFeedbackApi.ProcessFeedbackTargetVariants(batchRequest);
+
                 _logger.LogInformation($"Processed batch with ItemCount : {batchRequest.FeedbackTargetVariants.Count}, ClearStaging: {clearStaging}, MergeStaging: {isLastBatch}");
             }
         }

@@ -24,9 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         [FunctionName(nameof(ProcessFeedbackTargetVariantsTimer))]
         public async Task ProcessFeedbackTargetVariantsTimer([TimerTrigger("%FunctionsOptions:ProcessFeedbackTargetVariantsSchedule%")] TimerInfo timer, ILogger logger)
         {
-            _logger.LogInformation($"ProcessFeedbackTargetVariantsFunction executed at: {DateTime.Now}");
             await Run(nameof(ProcessFeedbackTargetVariantsTimer));
-            _logger.LogInformation($"ProcessFeedbackTargetVariantsFunction completed at: {DateTime.Now}");
         }
 
 #if DEBUG
@@ -34,11 +32,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         public async Task ProcessFeedbackTargetVariantsHttp(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req)
         {
-            _logger.LogInformation($"ProcessFeedbackTargetVariantsHttp executed at: {DateTime.Now}");
-
             await Run(nameof(ProcessFeedbackTargetVariantsHttp));
-
-            _logger.LogInformation($"ProcessFeedbackTargetVariantsHttp completed at: {DateTime.Now}");
 
             // Return a success response
             req.HttpContext.Response.StatusCode = StatusCodes.Status200OK;

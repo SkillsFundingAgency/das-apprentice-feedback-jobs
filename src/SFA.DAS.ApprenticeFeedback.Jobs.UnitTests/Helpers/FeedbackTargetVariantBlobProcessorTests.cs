@@ -124,7 +124,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Helpers
 
             // Assert
             _mockBlobReader.Verify(r => r.ReadVariantsFromBlob(blobClient.Object), Times.Once);
-            _mockBatchProcessor.Verify(b => b.ProcessBatch(It.IsAny<IEnumerable<FeedbackVariant>>(), It.IsAny<int>()), Times.Never);
+            _mockBatchProcessor.Verify(b => b.ProcessBatch(It.IsAny<List<FeedbackVariant>>(), It.IsAny<int>()), Times.Never);
             _mockBlobMover.Verify(m => m.MoveBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         }
 
@@ -148,7 +148,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Helpers
 
             // Assert
             _mockBlobReader.Verify(r => r.ReadVariantsFromBlob(It.IsAny<BlobClient>()), Times.Never);
-            _mockBatchProcessor.Verify(b => b.ProcessBatch(It.IsAny<IEnumerable<FeedbackVariant>>(), It.IsAny<int>()), Times.Never);
+            _mockBatchProcessor.Verify(b => b.ProcessBatch(It.IsAny<List<FeedbackVariant>>(), It.IsAny<int>()), Times.Never);
             _mockBlobMover.Verify(m => m.MoveBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
     }
