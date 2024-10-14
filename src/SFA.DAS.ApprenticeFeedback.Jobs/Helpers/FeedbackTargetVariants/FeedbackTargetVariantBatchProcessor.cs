@@ -28,27 +28,23 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants
         public async Task ProcessBatch(List<FeedbackVariant> feedbackVariants, int batchSize)
         {
             var feedbackVariantBatches = feedbackVariants.ChunkBy(batchSize);
-            bool isFirstBatch = true;
 
             foreach (var batch in feedbackVariantBatches)
             {
-                bool clearStaging = isFirstBatch;
-                isFirstBatch = false;
-
-                bool isLastBatch = batch == feedbackVariantBatches.Last();
-
                 var batchRequest = new PostProcessFeedbackVariantsRequest
                 {
                     FeedbackTargetVariants = batch,
-                    ClearStaging = clearStaging,
-                    MergeStaging = isLastBatch
+                    ClearStaging = batch == feedbackVariantBatches.First(),
+                    MergeStaging = batch == feedbackVariantBatches.Last()
                 };
 
                 await _apprenticeFeedbackApi.ProcessFeedbackTargetVariants(batchRequest);
 
-                _logger.LogInformation($"Processed batch with ItemCount : {batchRequest.FeedbackTargetVariants.Count}, ClearStaging: {clearStaging}, MergeStaging: {isLastBatch}");
+                _logger.LogInformation("Processed batch with ItemCount : {BatchSize}, ClearStaging: {ClearStaging}, MergeStaging: {MergeStaging}",
+                    batchRequest.FeedbackTargetVariants.Count,
+                    batchRequest.ClearStaging,
+                    batchRequest.MergeStaging);
             }
         }
     }
-
 }
