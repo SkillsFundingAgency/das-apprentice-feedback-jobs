@@ -257,7 +257,7 @@
                                 },
                                 {
                                     "name": "AzureWebJobsStorage",
-                                    "value": "[reference(concat('storage-account-', parameters('utcValue'))).outputs.storageConnectionString.value]"
+                                    "value": "[parameters('sharedStorageAccountConnectionString')]"
                                 },
                                 {
                                     "name": "LoggingRedisConnectionString",
