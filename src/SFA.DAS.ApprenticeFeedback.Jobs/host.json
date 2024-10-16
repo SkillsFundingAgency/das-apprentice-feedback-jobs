@@ -9,7 +9,8 @@
     },
     "logLevel": {
       "default": "None",
-      "Function.SFA.DAS.ApprenticeFeedback.Jobs.Functions.UpdateApprenticeFeedbackTargetTrigger": "Information"
+      "Function.SFA.DAS.ApprenticeFeedback.Jobs.Functions.UpdateApprenticeFeedbackTargetTrigger": "Information",
+      "Function.SFA.DAS.ApprenticeFeedback.Jobs.Functions.ProcessFeedbackTargetVariantsFunction": "Information"
     }
   }
 }

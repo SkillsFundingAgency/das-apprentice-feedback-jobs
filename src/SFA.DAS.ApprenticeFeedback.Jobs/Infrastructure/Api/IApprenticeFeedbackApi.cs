@@ -32,5 +32,8 @@ namespace SFA.DAS.ApprenticeCommitments.Jobs.Api
 
         [Post("feedbacktransaction/generate-email-transactions")]
         Task GenerateEmailTransactions();
+
+        [Post("feedbacktargetvariant/process-variants")]
+        Task ProcessFeedbackTargetVariants([Body] PostProcessFeedbackVariantsRequest processFeedbackvariantsRequest);
     }
 }
