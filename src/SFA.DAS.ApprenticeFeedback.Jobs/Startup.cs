@@ -1,15 +1,16 @@
 using Azure.Identity;
+using Azure.Storage.Blobs;
 using MediatR;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NServiceBus;
 using RestEase.HttpClientFactory;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
-using SFA.DAS.ApprenticeFeedback.Jobs.Functions;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
 using SFA.DAS.Http.Configuration;
 using System;
@@ -40,7 +41,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
                 ConfigureNServiceBus(builder);
             }
 
-            RegisterServices(builder.Services);
+            RegisterServices(builder.Services, configuration);
         }
 
         private void ConfigureLogging(IFunctionsHostBuilder builder)
@@ -97,14 +98,23 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs
             });
         }
 
-        private void RegisterServices(IServiceCollection services)
+        private void RegisterServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddApplicationOptions();
             services.ConfigureFromOptions(f => f.ApprenticeFeedbackOuterApi);
             services.AddSingleton<IApimClientConfiguration>(x => x.GetRequiredService<ApprenticeFeedbackApiConfiguration>());
+            services.Configure<FeedbackTargetVariantConfiguration>(
+                configuration.GetSection(nameof(FeedbackTargetVariantConfiguration)));
+            services.AddSingleton(sp =>
+            {
+                var feedbackTargetVariantConfig = sp.GetRequiredService<IOptions<FeedbackTargetVariantConfiguration>>().Value;
+                return new BlobServiceClient(feedbackTargetVariantConfig.BlobStorageConnectionString);
+            });
             services.AddTransient<Http.MessageHandlers.DefaultHeadersHandler>();
             services.AddTransient<Http.MessageHandlers.LoggingMessageHandler>();
             services.AddTransient<Http.MessageHandlers.ApimHeadersHandler>();
+
+            services.AddBlobProcessingServices();
 
             var url = services
                 .BuildServiceProvider()
