@@ -87,7 +87,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Helpers
         }
 
         [Test]
-        public async Task ReadVariantsFromBlob_Should_Log_Warning_For_Empty_Variant()
+        public async Task ReadVariantsFromBlob_Should_Accept_Empty_Variant()
         {
             // Arrange
             var blobData = "ApprenticeshipId,Variant\n12345,";  // ApprenticeshipId provided, but no Variant
@@ -101,9 +101,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Helpers
             var result = await _blobReader.ReadVariantsFromBlob(_mockBlobClient.Object);
 
             // Assert
-            result.Should().BeEmpty();
+            result.Should().HaveCount(1);
 
-            _mockLogger.VerifyLoggingMessage(LogLevel.Warning, Times.Once(), "Empty Variant in row");
+            result.Should().ContainSingle(v => v.ApprenticeshipId == 12345 && v.Variant == null);
         }
 
         [Test]

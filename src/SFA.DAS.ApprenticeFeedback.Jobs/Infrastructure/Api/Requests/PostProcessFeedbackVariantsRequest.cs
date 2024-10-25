@@ -13,7 +13,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests
     public class FeedbackVariant
     {
         public long ApprenticeshipId { get; set; }
-        public string Variant { get; set; }
+        public string? Variant { get; set; }
         public FeedbackVariant(long apprenticeshipId, string variantName)
         { 
             ApprenticeshipId = apprenticeshipId;

@@ -44,14 +44,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants
                     {
                         if (long.TryParse(columns[0].Trim(), out long parsedId))
                         {
-                            if (string.IsNullOrEmpty(columns[1].Trim()))
-                            {
-                                _logger.LogWarning($"Empty Variant in row: {line}");
-                            }
-                            else
-                            {
-                                variantList.Add(new FeedbackVariant(parsedId, columns[1].Trim()));
-                            }
+                            var variantValue = columns[1].Trim();
+                            variantList.Add(new FeedbackVariant(parsedId, string.IsNullOrEmpty(variantValue) ? null : variantValue));
                         }
                         else
                         {
@@ -66,9 +60,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants
                 return variantList;
             }
         }
-    
-    
-    
     }
 
 }
