@@ -51,6 +51,7 @@ jobs:
             TableName: Configuration
             ConfigurationSecrets:
               ApprenticeFeedbackApimSubscriptionKey: $(ApprenticeFeedbackApimSubscriptionKey)
+              AzureWebJobsStorage: $(AzureWebJobsStorage)
               NServiceBusLicense: $(NServiceBusLicense)
         - template: azure-pipelines-templates/deploy/step/function-deploy.yml@das-platform-building-blocks
           parameters:

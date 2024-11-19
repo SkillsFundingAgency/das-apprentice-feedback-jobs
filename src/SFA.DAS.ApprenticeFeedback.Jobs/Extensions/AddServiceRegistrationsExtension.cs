@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using RestEase.HttpClientFactory;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
+using SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
 using SFA.DAS.Http.Configuration;
 
