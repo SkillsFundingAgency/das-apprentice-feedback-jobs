@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Azure.Storage.Blobs;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using RestEase.HttpClientFactory;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
@@ -30,7 +32,19 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
                 .AddHttpMessageHandler<Http.MessageHandlers.ApimHeadersHandler>()
                 .AddHttpMessageHandler<Http.MessageHandlers.LoggingMessageHandler>();
 
-            //services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
+            services.Configure<FeedbackTargetVariantConfiguration>(configuration.GetSection(nameof(FeedbackTargetVariantConfiguration)));
+            services.AddSingleton(sp =>
+            {
+                var feedbackTargetVariantConfig =
+                    sp.GetRequiredService<IOptions<FeedbackTargetVariantConfiguration>>().Value;
+                return new BlobServiceClient(feedbackTargetVariantConfig.BlobStorageConnectionString);
+            });
+
+            services.AddTransient<IFeedbackTargetVariantBatchProcessor, FeedbackTargetVariantBatchProcessor>();
+            services.AddTransient<IFeedbackTargetVariantBlobProcessor, FeedbackTargetVariantBlobProcessor>();
+            services.AddTransient<IFeedbackTargetVariantBlobReader, FeedbackTargetVariantBlobReader>();
+            services.AddTransient<IFeedbackTargetVariantBlobMover, FeedbackTargetVariantBlobMover>();
+
             return services;
         }
 
