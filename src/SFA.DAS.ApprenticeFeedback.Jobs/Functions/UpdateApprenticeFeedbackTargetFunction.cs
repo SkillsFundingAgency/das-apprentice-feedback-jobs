@@ -11,29 +11,18 @@ using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
-    public class UpdateApprenticeFeedbackTargetFunction
+    public class UpdateApprenticeFeedbackTargetFunction(
+        IApprenticeFeedbackApi apprenticeFeedbackApi,
+        ApplicationConfiguration appConfig,
+        ILogger<UpdateApprenticeFeedbackTargetFunction> log)
     {
-        private readonly IApprenticeFeedbackApi _apprenticeFeedbackApi;
-        private readonly ApplicationConfiguration _appConfig;
-        private readonly ILogger<UpdateApprenticeFeedbackTargetFunction> _log;
-
-        public UpdateApprenticeFeedbackTargetFunction(
-            IApprenticeFeedbackApi apprenticeFeedbackApi, 
-            ApplicationConfiguration appConfig,
-            ILogger<UpdateApprenticeFeedbackTargetFunction> log)
-        {
-            _apprenticeFeedbackApi = apprenticeFeedbackApi;
-            _appConfig = appConfig;
-            _log = log;
-        }
-
         [Function(nameof(UpdateApprenticeFeedbackTargetActivity))]
         public async Task<UpdateApprenticeFeedbackTargetResponse> UpdateApprenticeFeedbackTargetActivity(
             [ActivityTrigger] FeedbackTargetForUpdate apprenticeFeedbackTargetToUpdate)
         {
-            _log.LogInformation($"Activity function is updating apprentice feedback target id '{apprenticeFeedbackTargetToUpdate.ApprenticeFeedbackTargetId}'...");
+            log.LogInformation($"Activity function is updating apprentice feedback target id '{apprenticeFeedbackTargetToUpdate.ApprenticeFeedbackTargetId}'...");
             
-            var response = await _apprenticeFeedbackApi.UpdateFeedbackTarget(new UpdateApprenticeFeedbackTargetRequest()
+            var response = await apprenticeFeedbackApi.UpdateFeedbackTarget(new UpdateApprenticeFeedbackTargetRequest()
             {
                 ApprenticeFeedbackTargetId = apprenticeFeedbackTargetToUpdate.ApprenticeFeedbackTargetId,
                 ApprenticeId = apprenticeFeedbackTargetToUpdate.ApprenticeId,
@@ -57,10 +46,10 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
             //var aftsForUpdate = orchestrationContext.GetInput<List<FeedbackTargetForUpdate>>();
 
-            _log.LogInformation($"Orchestrator function has selected the following {aftsForUpdate.Count} apprentice feedback target(s) to update:");
+            log.LogInformation($"Orchestrator function has selected the following {aftsForUpdate.Count} apprentice feedback target(s) to update:");
             for (int i = 0; i < aftsForUpdate.Count; i++)
             {
-                _log.LogTrace($"   [{i + 1}] - id={aftsForUpdate[i].ApprenticeFeedbackTargetId} apprenticeshipid={aftsForUpdate[i].ApprenticeshipId}");
+                log.LogTrace($"   [{i + 1}] - id={aftsForUpdate[i].ApprenticeFeedbackTargetId} apprenticeshipid={aftsForUpdate[i].ApprenticeshipId}");
             }
 
             var tasks = aftsForUpdate
@@ -72,7 +61,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 
             var responses = await Task.WhenAll(tasks);
 
-            _log.LogInformation($"Orchestrator function finished");
+            log.LogInformation($"Orchestrator function finished");
 
             return responses;
         }
@@ -82,7 +71,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             [TimerTrigger("%UpdateApprenticeFeedbackTargetSchedule%")] TimerInfo myTimer,
             [DurableClient] DurableTaskClient orchestrationClient)
         {
-            _log.LogInformation($"Starting UpdateApprenticeFeedbackTargetTimer, Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
+            log.LogInformation($"Starting UpdateApprenticeFeedbackTargetTimer, Orchestration instance id = {await RunOrchestrator(orchestrationClient)}");
         }
 
 #if DEBUG
@@ -99,7 +88,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         {
             try
             {
-                var feedbackTargetsForUpdate = await _apprenticeFeedbackApi.GetFeedbackTargetsForUpdate(_appConfig.UpdateBatchSize);
+                var feedbackTargetsForUpdate = await apprenticeFeedbackApi.GetFeedbackTargetsForUpdate(appConfig.UpdateBatchSize);
 
                 var result = await orchestrationClient.ScheduleNewOrchestrationInstanceAsync(
                     nameof(UpdateApprenticeFeedbackTargetOrchestrator),
@@ -110,7 +99,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             }
             catch (Exception ex)
             {
-                _log.LogCritical(ex, "Orchestrator failed. Cannot update feedback targets.");
+                log.LogCritical(ex, "Orchestrator failed. Cannot update feedback targets.");
                 throw;
             }
         }

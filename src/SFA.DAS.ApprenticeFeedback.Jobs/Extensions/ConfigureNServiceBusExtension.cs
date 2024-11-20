@@ -12,9 +12,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
 
         public static IHostBuilder ConfigureNServiceBus(this IHostBuilder hostBuilder)
         {
-            //CreateTopicsAndQueues.CreateQueuesAndTopics(builder.GetContext().Configuration, EndpointName, logger: logger)
-            //.GetAwaiter().GetResult();
-           
             hostBuilder.UseNServiceBus((configuration, endpointConfiguration) =>
             {
                 endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureQueueNameShortener.Shorten;
@@ -32,9 +29,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
                     .DefiningEventsAs(IsEvent)
                     .DefiningCommandsAs(IsCommand);
 
-                //endpointConfiguration.AdvancedConfiguration.Pipeline.Register(new LogIncomingBehaviour(), nameof(LogIncomingBehaviour));
-                //endpointConfiguration.AdvancedConfiguration.Pipeline.Register(new LogOutgoingBehaviour(), nameof(LogOutgoingBehaviour));
-
                 var persistence = endpointConfiguration.AdvancedConfiguration.UsePersistence<AzureTablePersistence>();
                 persistence.ConnectionString(configuration["AzureWebJobsStorage"]);
 
@@ -43,7 +37,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
             });
             return hostBuilder;
         }
-
 
         private static bool IsMessage(Type t) => t is IMessage || IsSfaMessage(t, "Messages");
 
@@ -56,8 +49,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
                t.Namespace.StartsWith("SFA.DAS") &&
                t.Namespace.EndsWith(namespaceSuffix);
     }
-
-
 }
 
 

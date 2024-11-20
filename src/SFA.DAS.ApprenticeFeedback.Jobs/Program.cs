@@ -17,6 +17,8 @@ var host = new HostBuilder()
             .ConfigureFunctionsApplicationInsights()
             .AddServiceRegistrations(context.Configuration);
 
+        services.AddOpenTelemetryRegistration(context.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]!);
+
         services.AddLogging(options =>
         {
             options.AddApplicationInsights();

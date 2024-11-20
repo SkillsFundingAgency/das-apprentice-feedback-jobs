@@ -7,26 +7,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure
 {
     internal static class EsfaConfigurationExtension
     {
-        //        internal static void ConfigureConfiguration(this IFunctionsConfigurationBuilder builder)
-        //        {
-        //            builder.ConfigurationBuilder
-        //                .SetBasePath(Directory.GetCurrentDirectory())
-        //                .AddJsonFile("local.settings.json", optional: true);
-
-        //            var preConfig = builder.ConfigurationBuilder.Build();
-
-        //            if (!preConfig["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase))
-        //            {
-        //                builder.ConfigurationBuilder.AddAzureTableStorage(options =>
-        //                {
-        //                    options.ConfigurationKeys = preConfig["ConfigNames"].Split(",");
-        //                    options.StorageConnectionString = preConfig["ConfigurationStorageConnectionString"];
-        //                    options.EnvironmentName = preConfig["EnvironmentName"];
-        //                    options.PreFixConfigurationKeys = false;
-        //                });
-        //            }
-        //        }
-
         public static void AddApplicationOptions(this IServiceCollection services)
         {
             services

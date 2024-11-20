@@ -4,7 +4,6 @@ using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
 using Microsoft.Azure.Functions.Worker;
-using ExecutionContext = System.Threading.ExecutionContext;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 

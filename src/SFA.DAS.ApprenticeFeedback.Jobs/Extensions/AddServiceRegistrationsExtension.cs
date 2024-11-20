@@ -48,6 +48,5 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
 
             return services;
         }
-
     }
 }
