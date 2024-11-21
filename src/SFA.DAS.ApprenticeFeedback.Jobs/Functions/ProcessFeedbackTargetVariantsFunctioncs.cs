@@ -10,7 +10,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         IFeedbackTargetVariantBlobProcessor blobProcessor)
     {
         [Function(nameof(ProcessFeedbackTargetVariantsTimer))]
-        public async Task ProcessFeedbackTargetVariantsTimer([TimerTrigger("%FunctionsOptions:ProcessFeedbackTargetVariantsSchedule%")] TimerInfo timer, ILogger logger)
+        public async Task ProcessFeedbackTargetVariantsTimer([TimerTrigger("%ProcessFeedbackTargetVariantsSchedule%")] TimerInfo timer, ILogger logger)
         {
             await Run(nameof(ProcessFeedbackTargetVariantsTimer));
         }

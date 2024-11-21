@@ -86,10 +86,11 @@
         "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
         "storageContainerNames": ["apprentice-feedback-template-variants"],
         "configNames": "SFA.DAS.ApprenticeFeedback.Jobs",
-        "apprenticeFeedbackSummarySchedule": "* */5 * * * * ",
+        "apprenticeFeedbackSummarySchedule": "0 */3 * * * * ",
         "generateFeedbackTransactionsSchedule": "* */30 * * * *",
         "processFeedbackTransactionsSchedule": "* */30 * * * *",
-        "updateApprenticeFeedbackTargetSchedule": "* */30 * * * *"
+        "updateApprenticeFeedbackTargetSchedule": "* */30 * * * *",
+        "processFeedbackTargetVariantsSchedule": "*/30 * * * *"
     },
     "resources": [
         {
@@ -305,6 +306,10 @@
                                 {
                                   "name": "updateApprenticeFeedbackTargetSchedule",
                                   "value": "[variables('UpdateApprenticeFeedbackTargetSchedule')]"
+                                },
+                                {
+                                  "name": "processFeedbackTargetVariantsSchedule",
+                                  "value": "[variables('ProcessFeedbackTargetVariantsSchedule')]"
                                 }
                             ]
                         }
