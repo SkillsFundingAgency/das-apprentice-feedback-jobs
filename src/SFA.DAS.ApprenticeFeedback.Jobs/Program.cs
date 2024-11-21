@@ -18,13 +18,6 @@ var host = new HostBuilder()
             .AddServiceRegistrations(context.Configuration);
 
         services.AddOpenTelemetryRegistration(context.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]!);
-
-        services.AddLogging(options =>
-        {
-            options.AddApplicationInsights();
-            options.AddFilter<ApplicationInsightsLoggerProvider>("SFA.DAS", LogLevel.Information);
-            options.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
-        });
     })
     .Build();
 
