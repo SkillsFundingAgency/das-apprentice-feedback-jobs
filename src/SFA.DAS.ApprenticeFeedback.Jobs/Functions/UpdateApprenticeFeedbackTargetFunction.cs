@@ -39,13 +39,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             [OrchestrationTrigger] TaskOrchestrationContext orchestrationContext,
             List<FeedbackTargetForUpdate> aftsForUpdate)
         {
-            //if (orchestrationContext.IsReplaying)
-            //{
-            //    _log.LogInformation($"Orchestrator function is replaying");
-            //}
-
-            //var aftsForUpdate = orchestrationContext.GetInput<List<FeedbackTargetForUpdate>>();
-
             log.LogInformation($"Orchestrator function has selected the following {aftsForUpdate.Count} apprentice feedback target(s) to update:");
             for (int i = 0; i < aftsForUpdate.Count; i++)
             {
