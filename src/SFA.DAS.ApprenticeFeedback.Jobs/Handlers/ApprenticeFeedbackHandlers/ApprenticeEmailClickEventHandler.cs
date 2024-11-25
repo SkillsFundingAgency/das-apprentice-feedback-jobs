@@ -27,7 +27,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Handlers.ApprenticeFeedbackHandlers
             try
             {
                 var jsonMessage = JsonConvert.SerializeObject(message);
-                _logger.LogDebug($"Handling ApprenticeEmailClickEventHandler {jsonMessage}");
+                _logger.LogInformation($"Handling ApprenticeEmailClickEventHandler {jsonMessage}");
 
                 await _apprenticeFeedbackApi.TrackFeedbackTransactionClick(message.FeedbackTransactionId, new FeedbackTransactionClickRequest
                 {

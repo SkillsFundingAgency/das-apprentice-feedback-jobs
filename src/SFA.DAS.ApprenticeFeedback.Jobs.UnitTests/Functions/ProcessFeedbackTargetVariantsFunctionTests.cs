@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.ApprenticeFeedback.Jobs.Functions;
 using SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants;
 using SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Extensions;
 
-namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions.UnitTests
+namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Functions
 {
     [TestFixture]
     public class ProcessFeedbackTargetVariantsFunctionTests
@@ -30,7 +31,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions.UnitTests
         public async Task VariantsTimer_ExecutesSuccessfully()
         {
             // Arrange
-            var timerInfo = new TimerInfo(null, null, false);
+            var timerInfo = new TimerInfo();
 
             // Act
             await _function.ProcessFeedbackTargetVariantsTimer(timerInfo, _loggerMock.Object);
@@ -44,7 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions.UnitTests
         public async Task VariantsTimer_LogsErrorOnFailure()
         {
             // Arrange
-            var timerInfo = new TimerInfo(null, null, false);
+            var timerInfo = new TimerInfo();
             _blobProcessorMock
                 .Setup(x => x.ProcessBlobs())
                 .Returns(() => Task.FromException(new Exception("Test exception")));
@@ -60,7 +61,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions.UnitTests
         public async Task VariantsTimer_LogsStartAndFinishMessages()
         {
             // Arrange
-            var timerInfo = new TimerInfo(null, null, false);
+            var timerInfo = new TimerInfo();
 
             // Act
             await _function.ProcessFeedbackTargetVariantsTimer(timerInfo, _loggerMock.Object);

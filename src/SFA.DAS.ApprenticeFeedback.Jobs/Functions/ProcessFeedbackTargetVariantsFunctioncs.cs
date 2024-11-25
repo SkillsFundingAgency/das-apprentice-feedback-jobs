@@ -1,34 +1,22 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants;
+using Microsoft.Azure.Functions.Worker;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
-    public class ProcessFeedbackTargetVariantsFunction
+    public class ProcessFeedbackTargetVariantsFunction(
+        ILogger<ProcessFeedbackTargetVariantsFunction> log,
+        IFeedbackTargetVariantBlobProcessor blobProcessor)
     {
-        private readonly ILogger<ProcessFeedbackTargetVariantsFunction> _logger;
-        private readonly IFeedbackTargetVariantBlobProcessor _blobProcessor;
-
-        public ProcessFeedbackTargetVariantsFunction(
-            ILogger<ProcessFeedbackTargetVariantsFunction> log,
-            IFeedbackTargetVariantBlobProcessor blobProcessor)
-        {
-            _logger = log;
-            _blobProcessor = blobProcessor;
-        }
-
-        [FunctionName(nameof(ProcessFeedbackTargetVariantsTimer))]
-        public async Task ProcessFeedbackTargetVariantsTimer([TimerTrigger("%FunctionsOptions:ProcessFeedbackTargetVariantsSchedule%")] TimerInfo timer, ILogger logger)
+        [Function(nameof(ProcessFeedbackTargetVariantsTimer))]
+        public async Task ProcessFeedbackTargetVariantsTimer([TimerTrigger("%ProcessFeedbackTargetVariantsSchedule%")] TimerInfo timer, ILogger logger)
         {
             await Run(nameof(ProcessFeedbackTargetVariantsTimer));
         }
 
 #if DEBUG
-        [FunctionName(nameof(ProcessFeedbackTargetVariantsHttp))]
+        [Function(nameof(ProcessFeedbackTargetVariantsHttp))]
         public async Task ProcessFeedbackTargetVariantsHttp(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req)
         {
@@ -44,16 +32,15 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         {
             try
             {
-                _logger.LogInformation("{FunctionName} has started", functionName);
-                await _blobProcessor.ProcessBlobs();
-                _logger.LogInformation("{FunctionName} has finished", functionName);
+                log.LogInformation("{FunctionName} has started", functionName);
+                await blobProcessor.ProcessBlobs();
+                log.LogInformation("{FunctionName} has finished", functionName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{FunctionName} has failed", functionName);
+                log.LogError(ex, "{FunctionName} has failed", functionName);
                 throw;
             }
         }
     }
-
 }

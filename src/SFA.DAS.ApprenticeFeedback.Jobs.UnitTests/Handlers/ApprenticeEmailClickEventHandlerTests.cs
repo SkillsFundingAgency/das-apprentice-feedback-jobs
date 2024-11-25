@@ -74,7 +74,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Handlers
             await _handler.Handle(message, _messageHandlerContext);
 
             // Assert
-            _logger.VerifyLogging(LogLevel.Debug, Times.Once());
+            _logger.VerifyLogging(LogLevel.Information, Times.Once());
         }
 
         [Test]

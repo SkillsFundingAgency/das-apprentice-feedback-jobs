@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
+﻿namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
 {
     public static class ListExtensions
     {
