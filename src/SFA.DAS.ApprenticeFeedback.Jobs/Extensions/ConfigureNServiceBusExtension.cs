@@ -2,7 +2,6 @@
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
 using System.Net;
 using System.Text.RegularExpressions;
-using Azure.Messaging.ServiceBus;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
 {
@@ -12,29 +11,42 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
 
         public static IHostBuilder ConfigureNServiceBus(this IHostBuilder hostBuilder)
         {
-            hostBuilder.UseNServiceBus((configuration, endpointConfiguration) =>
+            hostBuilder.ConfigureServices((context, services) =>
             {
-                endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureQueueNameShortener.Shorten;
+                var configuration = context.Configuration;
+                var serviceBusConnectionString = configuration["AzureWebJobsServiceBus"];
 
-                endpointConfiguration.AdvancedConfiguration.EnableInstallers();
+                if (string.Equals(serviceBusConnectionString, "Disabled", StringComparison.OrdinalIgnoreCase))
+                {
+                    // skip configuring NServiceBus
+                    return;
+                }
 
-                endpointConfiguration.AdvancedConfiguration.Conventions()
-                    .DefiningCommandsAs(t => Regex.IsMatch(t.Name, "Command(V\\d+)?$"))
-                    .DefiningEventsAs(t => Regex.IsMatch(t.Name, "Event(V\\d+)?$"));
+                hostBuilder.UseNServiceBus((configuration, endpointConfiguration) =>
+                {
+                    endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureQueueNameShortener.Shorten;
 
-                endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{EndpointName}-error");
+                    endpointConfiguration.AdvancedConfiguration.EnableInstallers();
 
-                endpointConfiguration.AdvancedConfiguration.Conventions()
-                    .DefiningMessagesAs(IsMessage)
-                    .DefiningEventsAs(IsEvent)
-                    .DefiningCommandsAs(IsCommand);
+                    endpointConfiguration.AdvancedConfiguration.Conventions()
+                        .DefiningCommandsAs(t => Regex.IsMatch(t.Name, "Command(V\\d+)?$"))
+                        .DefiningEventsAs(t => Regex.IsMatch(t.Name, "Event(V\\d+)?$"));
 
-                var persistence = endpointConfiguration.AdvancedConfiguration.UsePersistence<AzureTablePersistence>();
-                persistence.ConnectionString(configuration["AzureWebJobsStorage"]);
+                    endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{EndpointName}-error");
 
-                var decodedLicence = WebUtility.HtmlDecode(configuration["NServiceBusConfiguration:License"]);
-                endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
+                    endpointConfiguration.AdvancedConfiguration.Conventions()
+                        .DefiningMessagesAs(IsMessage)
+                        .DefiningEventsAs(IsEvent)
+                        .DefiningCommandsAs(IsCommand);
+
+                    var persistence = endpointConfiguration.AdvancedConfiguration.UsePersistence<AzureTablePersistence>();
+                    persistence.ConnectionString(configuration["AzureWebJobsStorage"]);
+
+                    var decodedLicence = WebUtility.HtmlDecode(configuration["NServiceBusConfiguration:License"]);
+                    endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
+                });
             });
+
             return hostBuilder;
         }
 
@@ -50,6 +62,3 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
                t.Namespace.EndsWith(namespaceSuffix);
     }
 }
-
-
-
