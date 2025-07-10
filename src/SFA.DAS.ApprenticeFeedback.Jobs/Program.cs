@@ -1,15 +1,18 @@
 ﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.ApprenticeFeedback.Jobs.Extensions;
 
 [assembly: NServiceBusTriggerFunction("SFA.DAS.ApprenticeFeedback.Jobs")]
+
+var configBuilder = new ConfigurationBuilder();
+var configuration = configBuilder.AddConfiguration().Build();
+
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
-    .ConfigureAppConfiguration(builder => builder.AddConfiguration())
-    .ConfigureNServiceBus()
+    .ConfigureAppConfiguration(builder => builder.AddConfiguration(configuration))
+    .ConfigureNServiceBus(configuration)
     .ConfigureServices((context, services) =>
     {
         services
@@ -21,4 +24,4 @@ var host = new HostBuilder()
     })
     .Build();
 
-host.Run();
+await host.RunAsync();

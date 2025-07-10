@@ -1,7 +1,7 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsServiceBus": "Development",
+    "AzureWebJobsServiceBus": "Disabled",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
     "ConfigNames": "SFA.DAS.ApprenticeFeedback.Jobs",

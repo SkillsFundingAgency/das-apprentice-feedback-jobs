@@ -5,22 +5,26 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
 {
     public static class AddConfigurationExtension
     {
-        public static void AddConfiguration(this IConfigurationBuilder builder)
+        public static IConfigurationBuilder AddConfiguration(this IConfigurationBuilder builder)
         {
-            builder
+            var preConfig = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("local.settings.json", optional: true);
+                .AddJsonFile("local.settings.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
 
-            var config = builder.Build();
+            builder.AddConfiguration(preConfig);
 
             builder.AddAzureTableStorage(options =>
             {
-                options.ConfigurationKeys = config["ConfigNames"]!.Split(",");
-                options.StorageConnectionString = config["ConfigurationStorageConnectionString"];
-                options.EnvironmentName = config["EnvironmentName"];
+                options.ConfigurationKeys = preConfig["ConfigNames"]!
+                    .Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                options.StorageConnectionString = preConfig["ConfigurationStorageConnectionString"];
+                options.EnvironmentName = preConfig["EnvironmentName"];
                 options.PreFixConfigurationKeys = false;
             });
+
+            return builder;
         }
     }
-
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -9,42 +10,37 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
     {
         const string EndpointName = $"SFA.DAS.ApprenticeFeedback.Jobs";
 
-        public static IHostBuilder ConfigureNServiceBus(this IHostBuilder hostBuilder)
+        public static IHostBuilder ConfigureNServiceBus(this IHostBuilder hostBuilder, IConfiguration configuration)
         {
-            hostBuilder.ConfigureServices((context, services) =>
+            var serviceBusConnectionString = configuration["AzureWebJobsServiceBus"];
+            if (string.Equals(serviceBusConnectionString, "Disabled", StringComparison.OrdinalIgnoreCase))
             {
-                var configuration = context.Configuration;
-                var serviceBusConnectionString = configuration["AzureWebJobsServiceBus"];
+                // skip configuring NServiceBus
+                return hostBuilder;
+            }
 
-                if (string.Equals(serviceBusConnectionString, "Disabled", StringComparison.OrdinalIgnoreCase))
-                {
-                    // skip configuring NServiceBus
-                    return;
-                }
+            hostBuilder.UseNServiceBus((configuration, endpointConfiguration) =>
+            {
+                endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureQueueNameShortener.Shorten;
 
-                hostBuilder.UseNServiceBus((configuration, endpointConfiguration) =>
-                {
-                    endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureQueueNameShortener.Shorten;
+                endpointConfiguration.AdvancedConfiguration.EnableInstallers();
 
-                    endpointConfiguration.AdvancedConfiguration.EnableInstallers();
+                endpointConfiguration.AdvancedConfiguration.Conventions()
+                    .DefiningCommandsAs(t => Regex.IsMatch(t.Name, "Command(V\\d+)?$"))
+                    .DefiningEventsAs(t => Regex.IsMatch(t.Name, "Event(V\\d+)?$"));
 
-                    endpointConfiguration.AdvancedConfiguration.Conventions()
-                        .DefiningCommandsAs(t => Regex.IsMatch(t.Name, "Command(V\\d+)?$"))
-                        .DefiningEventsAs(t => Regex.IsMatch(t.Name, "Event(V\\d+)?$"));
+                endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{EndpointName}-error");
 
-                    endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo($"{EndpointName}-error");
+                endpointConfiguration.AdvancedConfiguration.Conventions()
+                    .DefiningMessagesAs(IsMessage)
+                    .DefiningEventsAs(IsEvent)
+                    .DefiningCommandsAs(IsCommand);
 
-                    endpointConfiguration.AdvancedConfiguration.Conventions()
-                        .DefiningMessagesAs(IsMessage)
-                        .DefiningEventsAs(IsEvent)
-                        .DefiningCommandsAs(IsCommand);
+                var persistence = endpointConfiguration.AdvancedConfiguration.UsePersistence<AzureTablePersistence>();
+                persistence.ConnectionString(configuration["AzureWebJobsStorage"]);
 
-                    var persistence = endpointConfiguration.AdvancedConfiguration.UsePersistence<AzureTablePersistence>();
-                    persistence.ConnectionString(configuration["AzureWebJobsStorage"]);
-
-                    var decodedLicence = WebUtility.HtmlDecode(configuration["NServiceBusConfiguration:License"]);
-                    endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
-                });
+                var decodedLicence = WebUtility.HtmlDecode(configuration["NServiceBusConfiguration:License"]);
+                endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
             });
 
             return hostBuilder;
