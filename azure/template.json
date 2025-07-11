@@ -20,6 +20,9 @@
         "SharedServiceBusFqdn": {
             "type": "string"
         },
+        "serviceBusConnectionString": {
+            "type": "string"
+        },
         "loggingRedisConnectionString": {
             "type": "securestring"
         },
@@ -97,6 +100,11 @@
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
+        "apprenticeFeedbackSummarySchedule": "0 */3 * * * ",
+        "generateFeedbackTransactionsSchedule": "*/30 * * * *",
+        "processFeedbackTransactionsSchedule": "*/30 * * * *",
+        "updateApprenticeFeedbackTargetSchedule": "*/30 * * * *",
+        "processFeedbackTargetVariantsSchedule": "*/30 * * * *",
         "storageContainerNames": [
             "apprentice-feedback-template-variants"
         ],
@@ -270,6 +278,10 @@
                                     "value": "[parameters('SharedServiceBusFqdn')]"
                                 },
                                 {
+                                    "name": "AzureWebJobsServiceBus",
+                                    "value": "[parameters('serviceBusConnectionString')]"
+                                },
+                                {
                                     "name": "ConfigNames",
                                     "value": "[variables('configNames')]"
                                 },
@@ -278,8 +290,8 @@
                                     "value": "1.0"
                                 },
                                 {
-                                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                    "value": "[reference(concat(variables('functionAppName'), '-application-insights-', parameters('utcValue'))).outputs.InstrumentationKey.value]"
+                                    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                                    "value": "[reference(concat(variables('functionAppName'), '-application-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
                                 },
                                 {
                                     "name": "AzureWebJobsStorage",
@@ -299,17 +311,40 @@
                                 },
                                 {
                                     "name": "FUNCTIONS_WORKER_RUNTIME",
-                                    "value": "dotnet"
+                                    "value": "dotnet-isolated"
                                 },
                                 {
                                     "name": "WEBSITE_RUN_FROM_PACKAGE",
                                     "value": "1"
+                                },
+                                {
+                                  "name": "apprenticeFeedbackSummarySchedule",
+                                  "value": "[variables('ApprenticeFeedbackSummarySchedule')]"
+                                },
+                                {
+                                  "name": "generateFeedbackTransactionsSchedule",
+                                  "value": "[variables('GenerateFeedbackTransactionsSchedule')]"
+                                },
+                                {
+                                  "name": "processFeedbackTransactionsSchedule",
+                                  "value": "[variables('ProcessFeedbackTransactionsSchedule')]"
+                                },
+                                {
+                                  "name": "updateApprenticeFeedbackTargetSchedule",
+                                  "value": "[variables('UpdateApprenticeFeedbackTargetSchedule')]"
+                                },
+                                {
+                                  "name": "processFeedbackTargetVariantsSchedule",
+                                  "value": "[variables('ProcessFeedbackTargetVariantsSchedule')]"
                                 }
                             ]
                         }
                     },
                     "ipSecurityRestrictions": {
                         "value": "[parameters('workerAccessRestrictions')]"
+                    },
+                    "netFrameworkVersion": {
+                        "value": "v8.0"
                     }
                 }
             },

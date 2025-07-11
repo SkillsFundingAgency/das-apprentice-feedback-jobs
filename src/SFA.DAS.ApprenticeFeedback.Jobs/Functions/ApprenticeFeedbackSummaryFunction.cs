@@ -1,55 +1,43 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
-using System;
-using System.Threading.Tasks;
+using Microsoft.Azure.Functions.Worker;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
 {
-    public class ApprenticeFeedbackSummaryFunction
+    public class ApprenticeFeedbackSummaryFunction(
+        ILogger<GenerateFeedbackTransactionsFunction> log,
+        IApprenticeFeedbackApi apprenticeFeedbackApi)
     {
-        private readonly ILogger<GenerateFeedbackTransactionsFunction> _log;
-        private readonly IApprenticeFeedbackApi _apprenticeFeedbackApi;
-
-        public ApprenticeFeedbackSummaryFunction(ILogger<GenerateFeedbackTransactionsFunction> log, IApprenticeFeedbackApi apprenticeFeedbackApi)
-        {
-            _log = log;
-            _apprenticeFeedbackApi = apprenticeFeedbackApi;
-        }
-
-        [FunctionName("ApprenticeFeedbackSummaryTimer")]
-        public async Task ApprenticeFeedbackSummaryTimer(
-            [TimerTrigger("%FunctionsOptions:ApprenticeFeedbackSummarySchedule%")] TimerInfo timer)
+        [Function(nameof(ApprenticeFeedbackSummaryTimer))]
+        public async Task ApprenticeFeedbackSummaryTimer([TimerTrigger("%ApprenticeFeedbackSummarySchedule%")] TimerInfo timer)
         {
             try
             {
-                _log.LogInformation($"ApprenticeFeedbackSummaryTimer has started");
-                await _apprenticeFeedbackApi.GenerateFeedbackSummaries();
-                _log.LogInformation($"ApprenticeFeedbackSummaryTimer has finished");
+                log.LogInformation($"ApprenticeFeedbackSummaryTimer has started");
+                await apprenticeFeedbackApi.GenerateFeedbackSummaries();
+                log.LogInformation($"ApprenticeFeedbackSummaryTimer has finished");
             }
             catch(Exception ex)
             {
-                _log.LogError(ex, $"ApprenticeFeedbackSummaryTimer has failed");
+                log.LogError(ex, $"ApprenticeFeedbackSummaryTimer has failed");
                 throw;
             }
         }
 
 #if DEBUG
-        [FunctionName("ApprenticeFeedbackSummaryHttp")]
-        public async Task ApprenticeFeedbackSummaryHttp(
-            [HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequest request)
+        [Function(nameof(ApprenticeFeedbackSummaryHttp))]
+        public async Task ApprenticeFeedbackSummaryHttp([HttpTrigger(AuthorizationLevel.Function, "POST")] HttpRequest request)
         {
             try
             {
-                _log.LogInformation($"ApprenticeFeedbackSummaryHttp has started");
-                await _apprenticeFeedbackApi.GenerateFeedbackSummaries();
-                _log.LogInformation($"ApprenticeFeedbackSummaryHttp has finished");
+                log.LogInformation($"ApprenticeFeedbackSummaryHttp has started");
+                await apprenticeFeedbackApi.GenerateFeedbackSummaries();
+                log.LogInformation($"ApprenticeFeedbackSummaryHttp has finished");
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, $"ApprenticeFeedbackSummaryHttp has failed");
+                log.LogError(ex, $"ApprenticeFeedbackSummaryHttp has failed");
                 throw;
             }
         }

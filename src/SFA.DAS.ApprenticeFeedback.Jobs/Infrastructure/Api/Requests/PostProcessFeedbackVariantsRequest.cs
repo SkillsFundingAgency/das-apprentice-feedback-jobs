@@ -1,7 +1,4 @@
-﻿using Dynamitey.DynamicObjects;
-using System.Collections.Generic;
-
-namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests
+﻿namespace SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Requests
 {
     public class PostProcessFeedbackVariantsRequest
     {
