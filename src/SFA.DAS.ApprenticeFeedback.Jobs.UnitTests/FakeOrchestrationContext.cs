@@ -10,11 +10,16 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests
     internal sealed class FakeOrchestrationContext : TaskOrchestrationContext
     {
         private DateTime _now;
+        private readonly object _input;
+        
         public readonly List<DateTime> Timers = new();
+        
+        public Func<string, object, object> ActivityHandler { get; set; }
 
-        public FakeOrchestrationContext(DateTime startUtc)
+        public FakeOrchestrationContext(DateTime startUtc, object? input = null)
         {
             _now = DateTime.SpecifyKind(startUtc, DateTimeKind.Utc);
+            _input = input;
         }
 
         public override DateTime CurrentUtcDateTime => _now;
@@ -37,11 +42,24 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests
             return Task.CompletedTask;
         }
 
-        public override Task<TResult> CallActivityAsync<TResult>(TaskName name, object input = null, TaskOptions options = null)
-            => throw new NotImplementedException();
+        //public override Task<TResult> CallActivityAsync<TResult>(TaskName name, object input = null, TaskOptions options = null)
+          //  => throw new NotImplementedException();
 
-        public override T? GetInput<T>() where T : default
-            => throw new NotImplementedException();
+        public override Task<TResult> CallActivityAsync<TResult>(
+            TaskName name, object input = null, TaskOptions options = null)
+        {
+            if (ActivityHandler is null)
+                throw new NotImplementedException("No ActivityHandler set in test context.");
+
+            var obj = ActivityHandler(name, input);
+            return Task.FromResult((TResult)obj!);
+        }
+
+        //public override T? GetInput<T>() where T : default
+          //  => throw new NotImplementedException();
+
+        public override T GetInput<T>() where T : default
+            => (T)_input;
 
         public override Task<T> WaitForExternalEvent<T>(string eventName, CancellationToken cancellationToken = default)
             => throw new NotImplementedException();

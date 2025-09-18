@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.ApprenticeCommitments.Jobs.Api;
-using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
-using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.ApprenticeCommitments.Jobs.Api;
+using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
+using SFA.DAS.ApprenticeFeedback.Jobs.Exceptions;
+using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
 using SFA.DAS.ApprenticeFeedback.Jobs.Services;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
@@ -32,16 +33,11 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         public async Task<SendApprenticeFeedbackEmailResponse[]> ProcessFeedbackTransactionsOrchestrator(
             [OrchestrationTrigger] TaskOrchestrationContext ctx)
         {
-            const int PerSecondCap = 55;
-            const int PerMinuteCap = 3000;
-
-            var emailTargets = ctx.GetInput<List<FeedbackTransaction>>() ?? [];
-
-            var fanoutService = new SlidingWindowFanoutService(PerSecondCap, PerMinuteCap);
+            var fanoutService = new SlidingWindowFanoutService(appConfig.EmailPerSecondCap);
 
             var results = await fanoutService.ExecuteAsync(
                 ctx,
-                emailTargets,
+                ctx.GetInput<List<FeedbackTransaction>>() ?? [],
                 (ctx, feedbackTransaction) => ctx.CallActivityAsync<SendApprenticeFeedbackEmailResponse>(
                     nameof(ProcessFeedbackTransactionsActivity), feedbackTransaction)
             );
@@ -84,8 +80,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             }
             catch (Exception ex)
             {
-                log.LogCritical(ex, "ProcessFeedbackTransactions orchestrator function failed.");
-                throw;
+                throw new OrchestratorException("ProcessFeedbackTransactions orchestrator function failed.", ex);
             }
         }
     }

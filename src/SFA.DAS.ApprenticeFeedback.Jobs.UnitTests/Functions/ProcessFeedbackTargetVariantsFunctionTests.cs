@@ -42,7 +42,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Functions
         }
 
         [Test]
-        public async Task VariantsTimer_LogsErrorOnFailure()
+        public void VariantsTimer_LogsErrorOnFailure()
         {
             // Arrange
             var timerInfo = new TimerInfo();

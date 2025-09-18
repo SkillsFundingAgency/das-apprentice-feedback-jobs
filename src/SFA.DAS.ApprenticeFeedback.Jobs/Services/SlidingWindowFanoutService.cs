@@ -2,25 +2,18 @@
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
 {
+    /// <summary>
+    /// A replay-safe sliding-window fan-out that enforces a cap on starts per rolling second.
+    /// </summary>
     public sealed class SlidingWindowFanoutService
     {
         private readonly int _perSecondCap;
-        private readonly int _perMinuteCap;
 
-        public SlidingWindowFanoutService(int perSecondCap, int perMinuteCap)
+        public SlidingWindowFanoutService(int perSecondCap)
         {
             _perSecondCap = perSecondCap;
-            _perMinuteCap = perMinuteCap;
         }
 
-        /// <summary>
-        /// Executes a sliding-window rate-limited fan-out inside a Durable orchestrator.
-        /// </summary>
-        /// <typeparam name="TIn">Item type</typeparam>
-        /// <typeparam name="TOut">Result type</typeparam>
-        /// <param name="ctx">Durable orchestration context</param>
-        /// <param name="items">Items to process</param>
-        /// <param name="startFunc">Delegate that starts work for a single item (e.g., CallActivityAsync)</param>
         public async Task<IReadOnlyList<TOut>> ExecuteAsync<TIn, TOut>(
             TaskOrchestrationContext ctx,
             IEnumerable<TIn> items,
@@ -32,43 +25,43 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
 
             var list = (items as IList<TIn>) ?? items.ToList();
             var results = new List<TOut>(list.Count);
-            var startsInLastMinute = new Queue<DateTime>();
+
+            // start times within the last 1 second window, in chronological order.
+            var starts = new Queue<DateTime>();
+            var window = TimeSpan.FromSeconds(1);
 
             int index = 0;
             while (index < list.Count)
             {
                 var now = ctx.CurrentUtcDateTime;
 
-                DequeueOlderThan(startsInLastMinute, now - TimeSpan.FromMinutes(1));
+                // remove at/before the window threshold
+                var threshold = now - window;
+                while (starts.Count > 0 && starts.Peek() <= threshold)
+                    starts.Dequeue();
 
-                int usedLastMinute = startsInLastMinute.Count;
-                int usedLastSecond = CountSince(startsInLastMinute, now);
-
-                int availPerMinute = _perMinuteCap - usedLastMinute;
-                int availPerSecond = _perSecondCap - usedLastSecond;
-                int available = Math.Max(0, Math.Min(availPerSecond, availPerMinute));
+                int used = starts.Count;
+                int available = Math.Max(0, _perSecondCap - used);
 
                 if (available <= 0)
                 {
-                    // determine whether to wait for the next second or the next minute
-                    var nextSecond = NextFreeTime(startsInLastMinute, TimeSpan.FromSeconds(1), _perSecondCap, now);
-                    var nextMinute = NextFreeTime(startsInLastMinute, TimeSpan.FromMinutes(1), _perMinuteCap, now);
-                    var wakeAt = nextSecond >= nextMinute ? nextSecond : nextMinute;
-
-                    await ctx.CreateTimer(wakeAt, CancellationToken.None);
+                    // oldest start inside the window will age out at this time
+                    var freeAt = starts.Peek().Add(window);
+                    if (freeAt <= now) freeAt = now.AddMilliseconds(1);
+                    await ctx.CreateTimer(freeAt, CancellationToken.None);
                     continue;
                 }
 
                 int remaining = list.Count - index;
                 int take = Math.Min(available, remaining);
 
+                // recording the start times before starting so subsequent iterations see them inside the window
+                for (int takeIndex = 0; takeIndex < take; takeIndex++) 
+                    starts.Enqueue(now);
+
                 var batch = new List<Task<TOut>>(take);
-                for (int takeIndex = 0; takeIndex < take; takeIndex++)
-                {
-                    startsInLastMinute.Enqueue(now);
-                    var item = list[index + takeIndex];
-                    batch.Add(startFunc(ctx, item));
-                }
+                for (int k = 0; k < take; k++)
+                    batch.Add(startFunc(ctx, list[index + k]));
 
                 var batchResults = await Task.WhenAll(batch);
                 results.AddRange(batchResults);
@@ -76,32 +69,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
             }
 
             return results;
-
-            static void DequeueOlderThan(Queue<DateTime> startQueue, DateTime threshold)
-            {
-                while (startQueue.Count > 0 && startQueue.Peek() <= threshold) startQueue.Dequeue();
-            }
-
-            static int CountSince(Queue<DateTime> startQueue, DateTime threshold)
-            {
-                return startQueue.Count(startDateTime => startDateTime >= threshold);
-            }
-
-            static DateTime NextFreeTime(Queue<DateTime> startQueue, TimeSpan window, int cap, DateTime now)
-            {
-                var threshold = now - window;
-
-                var startsInWindow = startQueue
-                    .Where(t => t > threshold && t <= now)
-                    .ToList();
-
-                if (startsInWindow.Count < cap) return now;
-
-                var freeAt = startsInWindow[0].Add(window);
-
-                return freeAt <= now ? now.AddMilliseconds(1) : freeAt;
-            }
         }
     }
-
 }
