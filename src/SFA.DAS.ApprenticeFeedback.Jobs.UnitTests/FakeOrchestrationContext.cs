@@ -42,9 +42,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests
             return Task.CompletedTask;
         }
 
-        //public override Task<TResult> CallActivityAsync<TResult>(TaskName name, object input = null, TaskOptions options = null)
-          //  => throw new NotImplementedException();
-
         public override Task<TResult> CallActivityAsync<TResult>(
             TaskName name, object input = null, TaskOptions options = null)
         {
@@ -54,9 +51,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests
             var obj = ActivityHandler(name, input);
             return Task.FromResult((TResult)obj!);
         }
-
-        //public override T? GetInput<T>() where T : default
-          //  => throw new NotImplementedException();
 
         public override T GetInput<T>() where T : default
             => (T)_input;
