@@ -33,7 +33,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         public async Task<SendApprenticeFeedbackEmailResponse[]> ProcessFeedbackTransactionsOrchestrator(
             [OrchestrationTrigger] TaskOrchestrationContext ctx)
         {
-            var fanoutService = new SlidingWindowFanoutService(appConfig.EmailPerSecondCap);
+            var fanoutService = new WaveFanoutService(appConfig.EmailPerSecondCap);
 
             var results = await fanoutService.ExecuteAsync(
                 ctx,
