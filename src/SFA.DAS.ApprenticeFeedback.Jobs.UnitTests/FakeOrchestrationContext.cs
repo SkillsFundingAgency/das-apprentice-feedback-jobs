@@ -12,6 +12,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests
     {
         private DateTime _now;
         private readonly object _input;
+        private readonly Guid _instanceId = Guid.NewGuid();
         
         public readonly List<DateTime> Timers = new();
         
@@ -80,7 +81,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests
             => throw new NotImplementedException();
 
         public override string InstanceId 
-            => throw new NotImplementedException();
+            => _instanceId.ToString();
 
         public override ParentOrchestrationInstance Parent 
             => throw new NotImplementedException();
