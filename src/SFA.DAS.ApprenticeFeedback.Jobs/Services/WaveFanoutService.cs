@@ -10,14 +10,11 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
     public class WaveFanoutService : IWaveFanoutService
     {
         private readonly int _perSecondCap;
-        private readonly ILogger<WaveFanoutService> _logger;
 
-        public WaveFanoutService(int perSecondCap, ILogger<WaveFanoutService> logger)
+        public WaveFanoutService(int perSecondCap)
         {
             if (perSecondCap <= 0) throw new ArgumentOutOfRangeException(nameof(perSecondCap));
             _perSecondCap = perSecondCap;
-
-            _logger = logger;
         }
 
         public async Task<IReadOnlyList<TOut>> ExecuteAsync<TIn, TOut>(
@@ -29,11 +26,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
             ArgumentNullException.ThrowIfNull(items);
             ArgumentNullException.ThrowIfNull(startFunc);
 
+            var log = ctx.CreateReplaySafeLogger("WaveFanOut");
+
             var list = (items as IList<TIn>) ?? items.ToList();
-
-            _logger.LogInformation("WaveFanOut: Activities to process {ActivityCount}", list.Count);
-
             var results = new List<TOut>(list.Count);
+
+            log.LogInformation("WaveFanOut: Activities to process {ActivityCount}", list.Count);
 
             int index = 0;
             while (index < list.Count)
@@ -47,7 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
                     waveTasks.Add(startFunc(ctx, list[index + k]));
                 }
 
-                _logger.LogInformation("WaveFanOut: Activities tasks to wait for {TaskCount}", waveTasks.Count);
+                log.LogInformation("WaveFanOut: Activities tasks to wait for {TaskCount}", waveTasks.Count);
 
                 var waveResults = await Task.WhenAll(waveTasks);
                 results.AddRange(waveResults);
@@ -57,13 +55,13 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
                 {
                     var resumeAt = ctx.CurrentUtcDateTime.AddSeconds(1);
 
-                    _logger.LogInformation("WaveFanOut: Waiting until {ResumeAt} to continue processing", resumeAt);
+                    log.LogInformation("WaveFanOut: Waiting until {ResumeAt} to continue processing", resumeAt);
 
                     await ctx.CreateTimer(resumeAt, CancellationToken.None);
                 }
             }
 
-            _logger.LogInformation("WaveFanOut: Results to report {ResultCount}", results.Count);
+            log.LogInformation("WaveFanOut: Results to report {ResultCount}", results.Count);
 
             return results;
         }

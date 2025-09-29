@@ -1,5 +1,6 @@
 ﻿using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -84,7 +85,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests
         public override ParentOrchestrationInstance Parent 
             => throw new NotImplementedException();
 
-        protected override ILoggerFactory LoggerFactory 
-            => throw new NotImplementedException();
+        protected override ILoggerFactory LoggerFactory
+            => NullLoggerFactory.Instance;
     }
 }

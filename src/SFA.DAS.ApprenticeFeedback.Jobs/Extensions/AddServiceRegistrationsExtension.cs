@@ -46,7 +46,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
             services.AddTransient<IWaveFanoutService>(sp =>
             {
                 var config = sp.GetRequiredService<IOptions<ApplicationConfiguration>>().Value;
-                return new WaveFanoutService(config.EmailPerSecondCap, sp.GetRequiredService<ILogger<WaveFanoutService>>());
+                return new WaveFanoutService(config.EmailPerSecondCap);
             });
 
             services.AddTransient<IFeedbackTargetVariantBatchProcessor, FeedbackTargetVariantBatchProcessor>();

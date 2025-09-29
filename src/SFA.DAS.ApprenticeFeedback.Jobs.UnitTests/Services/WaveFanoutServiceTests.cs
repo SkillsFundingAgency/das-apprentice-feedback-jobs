@@ -29,9 +29,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
             var ctx = new FakeOrchestrationContext(t0);
             var items = Enumerable.Range(1, 10).Select(i => new Input(i)).ToList();
-
-            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
-            var sut = new WaveFanoutService(perSecondCap: 55, mockLogger.Object);
+            var sut = new WaveFanoutService(perSecondCap: 55);
 
             // Act
             var results = await sut.ExecuteAsync(ctx, items, DummyStart);
@@ -49,9 +47,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
             var ctx = new FakeOrchestrationContext(t0);
             var items = Enumerable.Range(1, 60).Select(i => new Input(i)).ToList();
-
-            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
-            var sut = new WaveFanoutService(perSecondCap: 55, mockLogger.Object);
+            var sut = new WaveFanoutService(perSecondCap: 55);
 
             // Act
             var results = await sut.ExecuteAsync(ctx, items, DummyStart);
@@ -70,9 +66,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
             var ctx = new FakeOrchestrationContext(t0);
             var items = Enumerable.Range(1, 55).Select(i => new Input(i)).ToList();
-
-            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
-            var sut = new WaveFanoutService(perSecondCap: 55, mockLogger.Object);
+            var sut = new WaveFanoutService(perSecondCap: 55);
 
             // Act
             var results = await sut.ExecuteAsync(ctx, items, DummyStart);
@@ -90,9 +84,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             var ctx = new FakeOrchestrationContext(t0);
             var cap = 3;
             var items = Enumerable.Range(1, 6).Select(i => new Input(i)).ToList();
-
-            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
-            var sut = new WaveFanoutService(perSecondCap: cap, mockLogger.Object);
+            var sut = new WaveFanoutService(perSecondCap: cap);
 
             // absolute due-times for wave 1 (ids 1..3)
             var due = new Dictionary<int, DateTime>
@@ -126,9 +118,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
             var ctx = new FakeOrchestrationContext(t0);
             var items = Enumerable.Range(1, 170).Select(i => new Input(i)).ToList();
-
-            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
-            var sut = new WaveFanoutService(perSecondCap: 55, mockLogger.Object);
+            var sut = new WaveFanoutService(perSecondCap: 55);
 
             // Act
             var results = await sut.ExecuteAsync(ctx, items, DummyStart);
@@ -151,9 +141,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             // Arrange
             var ctx = new FakeOrchestrationContext(DateTime.UtcNow);
             var items = new[] { new Input(1) };
-            
-            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
-            var sut = new WaveFanoutService(perSecondCap: 55, mockLogger.Object);
+            var sut = new WaveFanoutService(perSecondCap: 55);
 
             // Act + Assert
             Assert.ThrowsAsync<ArgumentNullException>(() =>
