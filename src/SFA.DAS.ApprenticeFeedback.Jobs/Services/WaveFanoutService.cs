@@ -31,7 +31,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
             var list = (items as IList<TIn>) ?? items.ToList();
             var results = new List<TOut>(list.Count);
 
-            log.LogInformation("WaveFanOut: Activities to process {ActivityCount}", list.Count);
+            log.LogInformation("WaveFanOut {CurrentUtcDateTime}: Activities to process {ActivityCount}", ctx.CurrentUtcDateTime, list.Count);
 
             int index = 0;
             while (index < list.Count)
@@ -45,7 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
                     waveTasks.Add(startFunc(ctx, list[index + k]));
                 }
 
-                log.LogInformation("WaveFanOut: Activities tasks to wait for {TaskCount}", waveTasks.Count);
+                log.LogInformation("WaveFanOut {CurrentUtcDateTime}: Activities tasks to wait for {TaskCount}", ctx.CurrentUtcDateTime, waveTasks.Count);
 
                 var waveResults = await Task.WhenAll(waveTasks);
                 results.AddRange(waveResults);
@@ -55,13 +55,13 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
                 {
                     var resumeAt = ctx.CurrentUtcDateTime.AddSeconds(1);
 
-                    log.LogInformation("WaveFanOut: Waiting until {ResumeAt} to continue processing", resumeAt);
+                    log.LogInformation("WaveFanOut {CurrentUtcDateTime}: Waiting until {ResumeAt} to continue processing", ctx.CurrentUtcDateTime, resumeAt);
 
                     await ctx.CreateTimer(resumeAt, CancellationToken.None);
                 }
             }
 
-            log.LogInformation("WaveFanOut: Results to report {ResultCount}", results.Count);
+            log.LogInformation("WaveFanOut {CurrentUtcDateTime}: Results to report {ResultCount}", ctx.CurrentUtcDateTime, results.Count);
 
             return results;
         }
