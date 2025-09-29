@@ -31,7 +31,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
             var list = (items as IList<TIn>) ?? items.ToList();
             var results = new List<TOut>(list.Count);
 
-            log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Activities to process {ActivityCount}", ctx.InstanceId, ctx.CurrentUtcDateTime, list.Count);
+            log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Activities to process {ActivityCount}, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, list.Count, ctx.IsReplaying);
 
             int index = 0;
             while (index < list.Count)
@@ -45,7 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
                     waveTasks.Add(startFunc(ctx, list[index + k]));
                 }
 
-                log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Activities tasks to wait for {TaskCount}", ctx.InstanceId, ctx.CurrentUtcDateTime, waveTasks.Count);
+                log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Activities tasks to wait for {TaskCount}, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, waveTasks.Count, ctx.IsReplaying);
 
                 var waveResults = await Task.WhenAll(waveTasks);
                 results.AddRange(waveResults);
@@ -55,13 +55,15 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
                 {
                     var resumeAt = ctx.CurrentUtcDateTime.AddSeconds(1);
 
-                    log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Waiting until {ResumeAt} to continue processing", ctx.InstanceId, ctx.CurrentUtcDateTime, resumeAt);
+                    log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Waiting until {ResumeAt} to continue processing, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, resumeAt, ctx.IsReplaying);
 
                     await ctx.CreateTimer(resumeAt, CancellationToken.None);
+
+                    log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Resumed, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
                 }
             }
 
-            log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Results to report {ResultCount}", ctx.InstanceId, ctx.CurrentUtcDateTime, results.Count);
+            log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Results to report {ResultCount}, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, results.Count, ctx.IsReplaying);
 
             return results;
         }
