@@ -1,4 +1,7 @@
-﻿using Microsoft.DurableTask;
+﻿using Castle.Core.Logging;
+using Microsoft.DurableTask;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Jobs.Services;
 using System;
@@ -6,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static Microsoft.Azure.Amqp.Serialization.SerializableType;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
 {
@@ -25,10 +29,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
             var ctx = new FakeOrchestrationContext(t0);
             var items = Enumerable.Range(1, 10).Select(i => new Input(i)).ToList();
-            var fanout = new WaveFanoutService(perSecondCap: 55);
+
+            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
+            var sut = new WaveFanoutService(perSecondCap: 55, mockLogger.Object);
 
             // Act
-            var results = await fanout.ExecuteAsync(ctx, items, DummyStart);
+            var results = await sut.ExecuteAsync(ctx, items, DummyStart);
 
             // Assert
             Assert.That(results, Has.Count.EqualTo(10));
@@ -43,10 +49,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
             var ctx = new FakeOrchestrationContext(t0);
             var items = Enumerable.Range(1, 60).Select(i => new Input(i)).ToList();
-            var fanout = new WaveFanoutService(perSecondCap: 55);
+
+            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
+            var sut = new WaveFanoutService(perSecondCap: 55, mockLogger.Object);
 
             // Act
-            var results = await fanout.ExecuteAsync(ctx, items, DummyStart);
+            var results = await sut.ExecuteAsync(ctx, items, DummyStart);
 
             // Assert
             Assert.That(results, Has.Count.EqualTo(60));
@@ -62,10 +70,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
             var ctx = new FakeOrchestrationContext(t0);
             var items = Enumerable.Range(1, 55).Select(i => new Input(i)).ToList();
-            var fanout = new WaveFanoutService(perSecondCap: 55);
+
+            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
+            var sut = new WaveFanoutService(perSecondCap: 55, mockLogger.Object);
 
             // Act
-            var results = await fanout.ExecuteAsync(ctx, items, DummyStart);
+            var results = await sut.ExecuteAsync(ctx, items, DummyStart);
 
             // Assert
             Assert.That(results, Has.Count.EqualTo(55));
@@ -80,7 +90,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             var ctx = new FakeOrchestrationContext(t0);
             var cap = 3;
             var items = Enumerable.Range(1, 6).Select(i => new Input(i)).ToList();
-            var fanout = new WaveFanoutService(perSecondCap: cap);
+
+            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
+            var sut = new WaveFanoutService(perSecondCap: cap, mockLogger.Object);
 
             // absolute due-times for wave 1 (ids 1..3)
             var due = new Dictionary<int, DateTime>
@@ -96,7 +108,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
                     : Task.FromResult(new Output(i.Id, "OK"));
 
             // Act
-            var results = await fanout.ExecuteAsync(ctx, items, Start);
+            var results = await sut.ExecuteAsync(ctx, items, Start);
 
             // Assert:
             Assert.That(results, Has.Count.EqualTo(6)); // all items returned
@@ -114,10 +126,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
             var ctx = new FakeOrchestrationContext(t0);
             var items = Enumerable.Range(1, 170).Select(i => new Input(i)).ToList();
-            var fanout = new WaveFanoutService(perSecondCap: 55);
+
+            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
+            var sut = new WaveFanoutService(perSecondCap: 55, mockLogger.Object);
 
             // Act
-            var results = await fanout.ExecuteAsync(ctx, items, DummyStart);
+            var results = await sut.ExecuteAsync(ctx, items, DummyStart);
 
             // Assert
             Assert.That(results, Has.Count.EqualTo(170));
@@ -134,16 +148,20 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
         [Test]
         public void ExecuteAsync_NullArguments_Throws()
         {
-            var fanout = new WaveFanoutService(55);
+            // Arrange
             var ctx = new FakeOrchestrationContext(DateTime.UtcNow);
             var items = new[] { new Input(1) };
+            
+            var mockLogger = new Mock<ILogger<WaveFanoutService>>();
+            var sut = new WaveFanoutService(perSecondCap: 55, mockLogger.Object);
 
+            // Act + Assert
             Assert.ThrowsAsync<ArgumentNullException>(() =>
-                fanout.ExecuteAsync(null!, items, DummyStart));
+                sut.ExecuteAsync(null!, items, DummyStart));
             Assert.ThrowsAsync<ArgumentNullException>(() =>
-                fanout.ExecuteAsync(ctx, (IEnumerable<Input>)null!, DummyStart));
+                sut.ExecuteAsync(ctx, (IEnumerable<Input>)null!, DummyStart));
             Assert.ThrowsAsync<ArgumentNullException>(() =>
-                fanout.ExecuteAsync(ctx, items, (Func<TaskOrchestrationContext, Input, Task<Output>>)null!));
+                sut.ExecuteAsync(ctx, items, (Func<TaskOrchestrationContext, Input, Task<Output>>)null!));
         }
 
         private static async Task<Output> SlowUntil(

@@ -7,6 +7,7 @@ using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Jobs.Exceptions;
 using SFA.DAS.ApprenticeFeedback.Jobs.Functions;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure.Api.Responses;
+using SFA.DAS.ApprenticeFeedback.Jobs.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +21,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Functions
         private static ProcessFeedbackTransactionsFunction CreateSut(
             ApplicationConfiguration cfg,
             ILogger<ProcessFeedbackTransactionsFunction> logger,
-            IApprenticeFeedbackApi api)
-            => new(cfg, logger ?? NullLogger<ProcessFeedbackTransactionsFunction>.Instance, api);
+            IApprenticeFeedbackApi api,
+            IWaveFanoutService waveFanoutService)
+            => new(cfg, logger ?? NullLogger<ProcessFeedbackTransactionsFunction>.Instance, api, waveFanoutService);
 
         [Test]
         public async Task Activity_CallsApi_AndReturnsResponse()
@@ -29,6 +31,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Functions
             // Arrange
             var cfg = new ApplicationConfiguration { EmailPerSecondCap = 10, EmailBatchSize = 10 };
             var api = new Mock<IApprenticeFeedbackApi>(MockBehavior.Strict);
+            var waveFanOutService = new Mock<IWaveFanoutService>();
 
             var feedbackTransaction = new FeedbackTransaction
             {
@@ -44,7 +47,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Functions
             api.Setup(a => a.ProcessEmailTransaction(feedbackTransaction.FeedbackTransactionId, feedbackTransaction))
                .ReturnsAsync(expectedResponse);
 
-            var sut = CreateSut(cfg, NullLogger<ProcessFeedbackTransactionsFunction>.Instance, api.Object);
+            var sut = CreateSut(cfg, NullLogger<ProcessFeedbackTransactionsFunction>.Instance, api.Object, waveFanOutService.Object);
 
             // Act
             var result = await sut.ProcessFeedbackTransactionsActivity(feedbackTransaction);
@@ -56,85 +59,13 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Functions
         }
 
         [Test]
-        public async Task Orchestrator_FansOut_PerSecondCap_Respected()
-        {
-            // Arrange: 15 items, cap 10 => 10 at t0, 5 at t0+1s
-            var cfg = new ApplicationConfiguration { EmailPerSecondCap = 10, EmailBatchSize = 60 };
-            var api = new Mock<IApprenticeFeedbackApi>(MockBehavior.Strict); // not used by orchestrator directly
-
-            var items = Enumerable.Range(1, 15).Select(i => new FeedbackTransaction
-            {
-                FeedbackTransactionId = i
-            }).ToList();
-
-            var t0 = new DateTime(2025, 9, 17, 12, 0, 0, DateTimeKind.Utc);
-            var ctx = new FakeOrchestrationContext(t0, input: items)
-            {
-                ActivityHandler = (name, input) =>
-                {
-                    Assert.That(name, Is.EqualTo(nameof(ProcessFeedbackTransactionsFunction.ProcessFeedbackTransactionsActivity)));
-                    var ft = (FeedbackTransaction)input!;
-                    return new SendApprenticeFeedbackEmailResponse
-                    {
-                        FeedbackTransactionId = ft.FeedbackTransactionId,
-                        EmailStatus = EmailStatus.Successful
-                    };
-                }
-            };
-
-            var sut = CreateSut(cfg, NullLogger<ProcessFeedbackTransactionsFunction>.Instance, api.Object);
-
-            // Act
-            var results = await sut.ProcessFeedbackTransactionsOrchestrator(ctx);
-
-            // Assert
-            Assert.That(results.Length, Is.EqualTo(15));
-            Assert.That(results.Select(r => r.FeedbackTransactionId), Is.EquivalentTo(items.Select(x => x.FeedbackTransactionId)));
-
-            // one wait because of 10/sec cap
-            Assert.That(ctx.Timers.Count, Is.EqualTo(1));
-            Assert.That(ctx.Timers[0], Is.EqualTo(t0.AddSeconds(1)));
-        }
-
-        [Test]
-        public async Task Orchestrator_ExactlyAtCap_NoWaits()
-        {
-            var cfg = new ApplicationConfiguration { EmailPerSecondCap = 10, EmailBatchSize = 25 };
-            var api = new Mock<IApprenticeFeedbackApi>(MockBehavior.Strict);
-
-            var items = Enumerable.Range(1, 10).Select(i => new FeedbackTransaction
-            {
-                FeedbackTransactionId = i
-            }).ToList();
-
-            var t0 = new DateTime(2025, 9, 17, 12, 0, 0, DateTimeKind.Utc);
-            var ctx = new FakeOrchestrationContext(t0, input: items)
-            {
-                ActivityHandler = (name, input) =>
-                {
-                    var ft = (FeedbackTransaction)input!;
-                    return new SendApprenticeFeedbackEmailResponse
-                    {
-                        FeedbackTransactionId = ft.FeedbackTransactionId,
-                        EmailStatus = EmailStatus.Successful
-                    };
-                }
-            };
-
-            var sut = CreateSut(cfg, NullLogger<ProcessFeedbackTransactionsFunction>.Instance, api.Object);
-
-            var results = await sut.ProcessFeedbackTransactionsOrchestrator(ctx);
-
-            Assert.That(results.Length, Is.EqualTo(10));
-            Assert.That(ctx.Timers, Is.Empty);
-        }
-
-        [Test]
         public async Task Timer_StartsOrchestrator_WithItemsFromApi()
         {
             // Arrange
             var cfg = new ApplicationConfiguration { EmailPerSecondCap = 55, EmailBatchSize = 3 };
             var api = new Mock<IApprenticeFeedbackApi>(MockBehavior.Strict);
+            var waveFanOutService = new Mock<IWaveFanoutService>();
+
             var items = new List<FeedbackTransaction>
             {
                 new() { FeedbackTransactionId = 1 },
@@ -148,7 +79,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Functions
             var fakeClient = new FakeDurableTaskClient(string.Empty) { InstanceIdToReturn = "inst-xyz" };
 
             var logger = new Mock<ILogger<ProcessFeedbackTransactionsFunction>>().Object;
-            var sut = CreateSut(cfg, logger, api.Object);
+            var sut = CreateSut(cfg, logger, api.Object, waveFanOutService.Object);
 
             // Act
             await sut.ProcessFeedbackTransactionsTimer(
@@ -167,11 +98,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Functions
             // Arrange
             var cfg = new ApplicationConfiguration { EmailPerSecondCap = 55, EmailBatchSize = 10 };
             var api = new Mock<IApprenticeFeedbackApi>(MockBehavior.Strict);
+            var waveFanOutService = new Mock<IWaveFanoutService>();
 
             api.Setup(a => a.GetFeedbackTransactionsToEmail(cfg.EmailBatchSize))
                .ThrowsAsync(new InvalidOperationException("boom"));
 
-            var sut = CreateSut(cfg, NullLogger<ProcessFeedbackTransactionsFunction>.Instance, api.Object);
+            var sut = CreateSut(cfg, NullLogger<ProcessFeedbackTransactionsFunction>.Instance, api.Object, waveFanOutService.Object);
 
             // Act + Assert
             var ex = Assert.ThrowsAsync<OrchestratorException>(() =>

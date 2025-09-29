@@ -14,17 +14,18 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
     public class ProcessFeedbackTransactionsFunction(
         ApplicationConfiguration appConfig,
         ILogger<ProcessFeedbackTransactionsFunction> log,
-        IApprenticeFeedbackApi apprenticeFeedbackApi)
-    {
+        IApprenticeFeedbackApi apprenticeFeedbackApi,
+        IWaveFanoutService waveFanoutService)
+    {   
         [Function(nameof(ProcessFeedbackTransactionsActivity))]
         public async Task<SendApprenticeFeedbackEmailResponse> ProcessFeedbackTransactionsActivity(
             [ActivityTrigger] FeedbackTransaction emailTarget)
         {
-            log.LogDebug("Activity function is performing email send activity for apprentice feedback transaction Id {FeedbackTransactionId}", emailTarget.FeedbackTransactionId);
+            log.LogInformation("Activity function is performing email send activity for apprentice feedback transaction Id {FeedbackTransactionId}", emailTarget.FeedbackTransactionId);
 
             var response = await apprenticeFeedbackApi.ProcessEmailTransaction(emailTarget.FeedbackTransactionId, emailTarget);
 
-            log.LogDebug("Activity function response: apprentice feedback transaction Id {FeedbackTransactionId} email status = {EmailStatus}", response.FeedbackTransactionId, response.EmailStatus);
+            log.LogInformation("Activity function response: apprentice feedback transaction Id {FeedbackTransactionId} email status = {EmailStatus}", response.FeedbackTransactionId, response.EmailStatus);
 
             return response;
         }
@@ -33,9 +34,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
         public async Task<SendApprenticeFeedbackEmailResponse[]> ProcessFeedbackTransactionsOrchestrator(
             [OrchestrationTrigger] TaskOrchestrationContext ctx)
         {
-            var fanoutService = new WaveFanoutService(appConfig.EmailPerSecondCap);
-
-            var results = await fanoutService.ExecuteAsync(
+            var results = await waveFanoutService.ExecuteAsync(
                 ctx,
                 ctx.GetInput<List<FeedbackTransaction>>() ?? [],
                 (ctx, feedbackTransaction) => ctx.CallActivityAsync<SendApprenticeFeedbackEmailResponse>(
