@@ -6,6 +6,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
     {
         Task<IReadOnlyList<TOut>> ExecuteAsync<TIn, TOut>(TaskOrchestrationContext ctx, IEnumerable<TIn> items, 
             Func<TaskOrchestrationContext, TIn, Task<TOut>> startFunc,
-            Action<TaskOrchestrationContext> delayAction);
+            Func<TaskOrchestrationContext, Task> delayFunc);
     }
 }

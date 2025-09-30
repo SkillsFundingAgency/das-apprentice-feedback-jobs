@@ -45,7 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
                 ctx.GetInput<List<FeedbackTransaction>>() ?? [],
                 (ctx, feedbackTransaction) => ctx.CallActivityAsync<SendApprenticeFeedbackEmailResponse>(
                     nameof(ProcessFeedbackTransactionsActivity), feedbackTransaction),
-                (ctx) => ctx.CallActivityAsync(nameof(DelayActivity), 2000)
+                (ctx) => ctx.CallActivityAsync(nameof(DelayActivity), 1000)
             );
 
             log.LogInformation($"ProcessFeedbackTransactions orchestrator function finished");

@@ -21,7 +21,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
             TaskOrchestrationContext ctx,
             IEnumerable<TIn> items,
             Func<TaskOrchestrationContext, TIn, Task<TOut>> startFunc,
-            Action<TaskOrchestrationContext> delayAction)
+            Func<TaskOrchestrationContext, Task> delayFunc)
         {
             ArgumentNullException.ThrowIfNull(ctx);
             ArgumentNullException.ThrowIfNull(items);
@@ -56,7 +56,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
                 {
                     log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Waiting, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
 
-                    delayAction(ctx);
+                    await delayFunc(ctx);
 
                     log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Resumed, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
 
