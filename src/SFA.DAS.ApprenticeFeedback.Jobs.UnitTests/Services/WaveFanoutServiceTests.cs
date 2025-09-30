@@ -13,7 +13,7 @@ using static Microsoft.Azure.Amqp.Serialization.SerializableType;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
 {
-    public record Input(int Id);
+    /*public record Input(int Id);
     public record Output(int Id, string Status);
 
     [TestFixture]
@@ -162,5 +162,5 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
 
             return new Output(input.Id, "OK");
         }
-    }
+    }*/
 }

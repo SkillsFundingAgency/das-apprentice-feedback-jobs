@@ -20,7 +20,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
         public async Task<IReadOnlyList<TOut>> ExecuteAsync<TIn, TOut>(
             TaskOrchestrationContext ctx,
             IEnumerable<TIn> items,
-            Func<TaskOrchestrationContext, TIn, Task<TOut>> startFunc)
+            Func<TaskOrchestrationContext, TIn, Task<TOut>> startFunc,
+            Action<TaskOrchestrationContext> delayAction)
         {
             ArgumentNullException.ThrowIfNull(ctx);
             ArgumentNullException.ThrowIfNull(items);
@@ -53,13 +54,16 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
 
                 if (index < list.Count)
                 {
-                    var resumeAt = ctx.CurrentUtcDateTime.AddSeconds(5);
+                    //await ctx.CallActivityAsync(nameof(ProcessFeedbackTransactionsFunction.DelayActivity), 1000);
+                    delayAction(ctx);
 
-                    log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Waiting until {ResumeAt} to continue processing, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, resumeAt, ctx.IsReplaying);
+                    //var resumeAt = ctx.CurrentUtcDateTime.AddSeconds(5);
 
-                    await ctx.CreateTimer(resumeAt, CancellationToken.None);
+                    //log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Waiting until {ResumeAt} to continue processing, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, resumeAt, ctx.IsReplaying);
 
-                    log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Resumed, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
+                    //await ctx.CreateTimer(resumeAt, CancellationToken.None);
+
+                    //log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Resumed, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
                 }
             }
 

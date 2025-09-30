@@ -4,6 +4,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
 {
     public interface IWaveFanoutService
     {
-        Task<IReadOnlyList<TOut>> ExecuteAsync<TIn, TOut>(TaskOrchestrationContext ctx, IEnumerable<TIn> items, Func<TaskOrchestrationContext, TIn, Task<TOut>> startFunc);
+        Task<IReadOnlyList<TOut>> ExecuteAsync<TIn, TOut>(TaskOrchestrationContext ctx, IEnumerable<TIn> items, 
+            Func<TaskOrchestrationContext, TIn, Task<TOut>> startFunc,
+            Action<TaskOrchestrationContext> delayAction);
     }
 }

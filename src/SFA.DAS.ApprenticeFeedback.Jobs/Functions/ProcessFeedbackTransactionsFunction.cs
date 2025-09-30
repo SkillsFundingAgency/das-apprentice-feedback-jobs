@@ -30,6 +30,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
             return response;
         }
 
+        [Function(nameof(DelayActivity))]
+        public async Task DelayActivity([ActivityTrigger] int ms)
+        {
+            await Task.Delay(ms);
+        }
+
         [Function(nameof(ProcessFeedbackTransactionsOrchestrator))]
         public async Task<SendApprenticeFeedbackEmailResponse[]> ProcessFeedbackTransactionsOrchestrator(
             [OrchestrationTrigger] TaskOrchestrationContext ctx)
@@ -38,7 +44,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Functions
                 ctx,
                 ctx.GetInput<List<FeedbackTransaction>>() ?? [],
                 (ctx, feedbackTransaction) => ctx.CallActivityAsync<SendApprenticeFeedbackEmailResponse>(
-                    nameof(ProcessFeedbackTransactionsActivity), feedbackTransaction)
+                    nameof(ProcessFeedbackTransactionsActivity), feedbackTransaction),
+                (ctx) => ctx.CallActivityAsync(nameof(DelayActivity), 1000)
             );
 
             log.LogInformation($"ProcessFeedbackTransactions orchestrator function finished");
