@@ -26,13 +26,14 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
             ArgumentNullException.ThrowIfNull(ctx);
             ArgumentNullException.ThrowIfNull(items);
             ArgumentNullException.ThrowIfNull(startFunc);
+            ArgumentNullException.ThrowIfNull(delayFunc);
 
             var log = ctx.CreateReplaySafeLogger("WaveFanOut");
 
             var list = (items as IList<TIn>) ?? items.ToList();
             var results = new List<TOut>(list.Count);
 
-            log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Activities to process {ActivityCount}, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, list.Count, ctx.IsReplaying);
+            log.LogDebug("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Activities to process {ActivityCount}, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, list.Count, ctx.IsReplaying);
 
             int index = 0;
             while (index < list.Count)
@@ -46,7 +47,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
                     waveTasks.Add(startFunc(ctx, list[index + k]));
                 }
 
-                log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Activities tasks to wait for {TaskCount}, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, waveTasks.Count, ctx.IsReplaying);
+                log.LogDebug("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Activities tasks to wait for {TaskCount}, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, waveTasks.Count, ctx.IsReplaying);
 
                 var waveResults = await Task.WhenAll(waveTasks);
                 results.AddRange(waveResults);
@@ -54,23 +55,15 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
 
                 if (index < list.Count)
                 {
-                    log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Waiting, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
+                    log.LogDebug("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Waiting, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
 
                     await delayFunc(ctx);
 
-                    log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Resumed, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
-
-                    //var resumeAt = ctx.CurrentUtcDateTime.AddSeconds(5);
-
-                    //log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Waiting until {ResumeAt} to continue processing, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, resumeAt, ctx.IsReplaying);
-
-                    //await ctx.CreateTimer(resumeAt, CancellationToken.None);
-
-                    //log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Resumed, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
+                    log.LogDebug("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Resumed, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
                 }
             }
 
-            log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Results to report {ResultCount}, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, results.Count, ctx.IsReplaying);
+            log.LogDebug("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Results to report {ResultCount}, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, results.Count, ctx.IsReplaying);
 
             return results;
         }
