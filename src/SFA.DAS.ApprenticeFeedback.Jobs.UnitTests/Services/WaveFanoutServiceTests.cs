@@ -19,6 +19,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
     [TestFixture]
     public class WaveFanoutServiceTests
     {
+        private static int InterwaveWaitSecs = 5;
+        
         private static Task<Output> DummyStart(TaskOrchestrationContext ctx, Input input)
             => Task.FromResult(new Output(input.Id, "OK"));
 
@@ -41,9 +43,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
         }
 
         [Test]
-        public async Task ExecuteAsync_OverCap_TwoWaves_WaitsOneSecondBetweenWaves()
+        public async Task ExecuteAsync_OverCap_TwoWaves_WaitsBetweenWaves()
         {
-            // Arrange: 60 items => wave1: 55 at t0, then wait 1s, wave2: 5 at t0+1s
+            // Arrange: 60 items => wave1: 55 at t0, then wait InterwaveWaitSecs, wave2: 5 at t0+InterwaveWaitSecs
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
             var ctx = new FakeOrchestrationContext(t0);
             var items = Enumerable.Range(1, 60).Select(i => new Input(i)).ToList();
@@ -55,8 +57,8 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             // Assert
             Assert.That(results, Has.Count.EqualTo(60));
             Assert.That(ctx.Timers.Count, Is.EqualTo(1), "Exactly one inter-wave wait expected.");
-            Assert.That(ctx.Timers[0], Is.EqualTo(t0.AddSeconds(1)));
-            Assert.That(ctx.CurrentUtcDateTime >= t0.AddSeconds(1));
+            Assert.That(ctx.Timers[0], Is.EqualTo(t0.AddSeconds(InterwaveWaitSecs)));
+            Assert.That(ctx.CurrentUtcDateTime >= t0.AddSeconds(InterwaveWaitSecs));
         }
 
         [Test]
@@ -77,7 +79,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
         }
 
         [Test]
-        public async Task ExecuteAsync_WaitsFullSecond_AfterSlowestTaskInWave()
+        public async Task ExecuteAsync_WaitsInterwaveWaitSecs_AfterSlowestTaskInWave()
         {
             // Arrange
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
@@ -105,16 +107,16 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             // Assert:
             Assert.That(results, Has.Count.EqualTo(6)); // all items returned
 
-            // inter-wave timer is exactly after the slowest (3s) + 1s gap => t0+4s
-            Assert.That(ctx.Timers, Does.Contain(t0.AddSeconds(4)));
+            // inter-wave timer is exactly after the slowest (3s) + (1*InterwaveWaitSecs) gap => t0+3+InterwaveWaitSecs
+            Assert.That(ctx.Timers, Does.Contain(t0.AddSeconds(3 + InterwaveWaitSecs)));
         }
 
 
         [Test]
-        public async Task ExecuteAsync_LargeBatch_SchedulesOneSecondBetweenEachWave()
+        public async Task ExecuteAsync_LargeBatch_SchedulesInterwaveWaitSecsBetweenEachWave()
         {
             // Arrange: 170 items with cap 55
-            // Waves: t0: 55, t0+1s: 55, t0+2s: 55, t0+3s: 5 (3 inter-wave waits)
+            // Waves: t0: 55, t0+InterwaveWaitSecs: 55, t0+(2*InterwaveWaitSecs): 55, t0+(3*InterwaveWaitSecs): 5 (3 inter-wave waits)
             var t0 = new DateTime(2025, 09, 17, 12, 00, 00, DateTimeKind.Utc);
             var ctx = new FakeOrchestrationContext(t0);
             var items = Enumerable.Range(1, 170).Select(i => new Input(i)).ToList();
@@ -127,12 +129,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.UnitTests.Services
             Assert.That(results, Has.Count.EqualTo(170));
 
             Assert.That(ctx.Timers, Has.Count.EqualTo(3));
-            Assert.That(ctx.Timers[0], Is.EqualTo(t0.AddSeconds(1)));
-            Assert.That(ctx.Timers[1], Is.EqualTo(t0.AddSeconds(2)));
-            Assert.That(ctx.Timers[2], Is.EqualTo(t0.AddSeconds(3)));
+            Assert.That(ctx.Timers[0], Is.EqualTo(t0.AddSeconds(InterwaveWaitSecs)));
+            Assert.That(ctx.Timers[1], Is.EqualTo(t0.AddSeconds(2 * InterwaveWaitSecs)));
+            Assert.That(ctx.Timers[2], Is.EqualTo(t0.AddSeconds(3 * InterwaveWaitSecs)));
 
             // Fake context should have advanced to last scheduled time
-            Assert.That(ctx.CurrentUtcDateTime, Is.EqualTo(t0.AddSeconds(3)));
+            Assert.That(ctx.CurrentUtcDateTime, Is.EqualTo(t0.AddSeconds(3 * InterwaveWaitSecs)));
         }
 
         [Test]
