@@ -54,8 +54,11 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
 
                 if (index < list.Count)
                 {
-                    //await ctx.CallActivityAsync(nameof(ProcessFeedbackTransactionsFunction.DelayActivity), 1000);
+                    log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Waiting, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
+
                     delayAction(ctx);
+
+                    log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Resumed, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, ctx.IsReplaying);
 
                     //var resumeAt = ctx.CurrentUtcDateTime.AddSeconds(5);
 
