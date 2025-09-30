@@ -53,7 +53,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Services
 
                 if (index < list.Count)
                 {
-                    var resumeAt = ctx.CurrentUtcDateTime.AddSeconds(1);
+                    var resumeAt = ctx.CurrentUtcDateTime.AddSeconds(5);
 
                     log.LogInformation("WaveFanOut {InstanceId}@{CurrentUtcDateTime}: Waiting until {ResumeAt} to continue processing, replaying {Replaying}", ctx.InstanceId, ctx.CurrentUtcDateTime, resumeAt, ctx.IsReplaying);
 
