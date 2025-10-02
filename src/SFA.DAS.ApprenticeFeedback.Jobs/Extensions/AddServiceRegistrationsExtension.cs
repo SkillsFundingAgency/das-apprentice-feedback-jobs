@@ -1,12 +1,14 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RestEase.HttpClientFactory;
 using SFA.DAS.ApprenticeCommitments.Jobs.Api;
 using SFA.DAS.ApprenticeFeedback.Jobs.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Jobs.Helpers.FeedbackTargetVariants;
 using SFA.DAS.ApprenticeFeedback.Jobs.Infrastructure;
+using SFA.DAS.ApprenticeFeedback.Jobs.Services;
 using SFA.DAS.Http.Configuration;
 
 namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
@@ -39,6 +41,12 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
                 var feedbackTargetVariantConfig =
                     sp.GetRequiredService<IOptions<FeedbackTargetVariantConfiguration>>().Value;
                 return new BlobServiceClient(feedbackTargetVariantConfig.BlobStorageConnectionString);
+            });
+
+            services.AddTransient<IWaveFanoutService>(sp =>
+            {
+                var config = sp.GetRequiredService<IOptions<ApplicationConfiguration>>().Value;
+                return new WaveFanoutService(config.EmailPerSecondCap);
             });
 
             services.AddTransient<IFeedbackTargetVariantBatchProcessor, FeedbackTargetVariantBatchProcessor>();
