@@ -32,7 +32,6 @@ The update apprentice feedback targets job causes the learner details to be upda
 
 In order to run this solution locally you will need:
 - Install [.NET 10.0 SDK](https://dotnet.microsoft.com/en-us/download/visual-studio-sdks)
-- Install [.NET Core 10.0](https://www.microsoft.com/net/download)
 - Install [Azure Functions SDK](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local)
 - Install [Visual Studio 2026 (Community or more advanced)](https://visualstudio.microsoft.com/vs/community/)
 - Install [SQL Server 2019 (or later) Developer Edition](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
