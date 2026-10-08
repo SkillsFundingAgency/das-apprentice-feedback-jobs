@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -8,25 +8,25 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />
-    <PackageReference Include="MediatR" Version="10.0.1" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.22.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.2.1" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Blobs" Version="6.4.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.1.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.2" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.2.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.1.0" />
-    <PackageReference Include="NServiceBus.AzureFunctions.Worker.ServiceBus" Version="5.0.0" />
-    <PackageReference Include="NServiceBus.Persistence.AzureTable" Version="6.0.0" />
-    <PackageReference Include="RestEase" Version="1.5.5" />
-    <PackageReference Include="RestEase.HttpClientFactory" Version="1.5.5" />
-    <PackageReference Include="SFA.DAS.ApprenticeCommitments.Messages" Version="0.1.83-prerelease-6" />
-    <PackageReference Include="SFA.DAS.ApprenticeFeedback.Messages" Version="0.1.21" />
-    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
-    <PackageReference Include="SFA.DAS.Http" Version="3.2.65" />
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.6.0" />
+       <PackageReference Include="MediatR" Version="14.2.0" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.52.0" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.1" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Blobs" Version="6.8.2" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.1.0" />
+	  <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.2.0" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.19.2" />
+	  <PackageReference Include="NServiceBus.AzureFunctions.Worker.ServiceBus" Version="7.1.2" />
+	  <PackageReference Include="NServiceBus.Persistence.AzureTable" Version="7.0.2" />
+	  <PackageReference Include="RestEase" Version="1.6.4" />
+	  <PackageReference Include="RestEase.HttpClientFactory" Version="1.6.4" />
+    <PackageReference Include="SFA.DAS.ApprenticeCommitments.Messages" Version="0.1.118" />
+    <PackageReference Include="SFA.DAS.ApprenticeFeedback.Messages" Version="0.1.61" />
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.165" />
+    <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
   </ItemGroup>
   <ItemGroup>
     <None Update="local.settings.json">

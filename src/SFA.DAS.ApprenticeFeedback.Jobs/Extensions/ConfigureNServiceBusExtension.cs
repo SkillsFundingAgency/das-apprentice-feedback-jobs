@@ -21,8 +21,6 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
 
             hostBuilder.UseNServiceBus((configuration, endpointConfiguration) =>
             {
-                endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureQueueNameShortener.Shorten;
-
                 endpointConfiguration.AdvancedConfiguration.EnableInstallers();
 
                 endpointConfiguration.AdvancedConfiguration.Conventions()
