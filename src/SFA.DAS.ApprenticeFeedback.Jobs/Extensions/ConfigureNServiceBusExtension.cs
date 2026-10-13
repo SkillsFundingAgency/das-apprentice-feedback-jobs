@@ -38,7 +38,9 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
                 persistence.ConnectionString(configuration["AzureWebJobsStorage"]);
 
                 var decodedLicence = WebUtility.HtmlDecode(configuration["NServiceBusConfiguration:License"]);
-                endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
+                if (!string.IsNullOrWhiteSpace(decodedLicence))
+                    endpointConfiguration.AdvancedConfiguration.License(decodedLicence);                
+                
             });
 
             return hostBuilder;
