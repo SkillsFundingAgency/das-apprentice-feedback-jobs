@@ -29,7 +29,7 @@
     <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
   </ItemGroup>
   <ItemGroup>
-	<None Update="appsettings.json">
+	<None Update="nservicebussettings.json">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 	</None>
