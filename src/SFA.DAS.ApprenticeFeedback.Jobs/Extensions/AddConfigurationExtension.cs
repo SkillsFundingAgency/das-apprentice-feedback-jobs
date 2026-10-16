@@ -24,6 +24,11 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
                 options.PreFixConfigurationKeys = false;
             });
 
+            builder.AddJsonFile(
+                "nservicebussettings.json",
+                optional: false,
+                reloadOnChange: false);
+
             return builder;
         }
     }
