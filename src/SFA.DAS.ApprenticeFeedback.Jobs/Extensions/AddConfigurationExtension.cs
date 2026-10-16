@@ -25,7 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Jobs.Extensions
             });
 
             builder.AddJsonFile(
-                "appsettings.json",
+                "nservicebussettings.json",
                 optional: false,
                 reloadOnChange: false);
 
