@@ -1,0 +1,16 @@
+{
+  "AzureServiceBus": {
+    "MigrationTopologyOptions": {
+      "TopicToPublishTo": "bundle-1",
+      "TopicToSubscribeOn": "bundle-1",
+      "EventsToMigrateMap": [
+        "SFA.DAS.ApprenticeCommitments.Messages.Events.ApprenticeshipConfirmationConfirmedEvent",
+        "SFA.DAS.ApprenticeFeedback.Messages.Events.ApprenticeEmailClickEvent"
+      ],
+      "SubscribedEventToRuleNameMap": {
+        "SFA.DAS.ApprenticeCommitments.Messages.Events.ApprenticeshipConfirmationConfirmedEvent": "ApprenticeshipConfirmationConfirmedEvent.7F2ED1E0",
+        "SFA.DAS.ApprenticeFeedback.Messages.Events.ApprenticeEmailClickEvent": "ApprenticeFeedback.ApprenticeEmailClickEvent"
+      }
+    }
+  }
+}
