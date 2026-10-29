@@ -9,7 +9,7 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.6.0" />
-    <PackageReference Include="MediatR" Version="14.2.0" />
+    <PackageReference Include="MediatR" Version="12.5.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.52.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.1" />
